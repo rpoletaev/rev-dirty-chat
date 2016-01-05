@@ -1,0 +1,33 @@
+  <footer class="page-footer">
+  		<div class="container">
+  			<div class="row">
+  				<div class="col l4 s12">
+  						<h5 class="white-text">Help Materialize Grow</h5>
+  				</div>
+  				<div class="col l4 s12">
+  					<h5 class="white-text">Join the Discussion</h5>
+  				</div>
+  				<div class="col l4 s12" style="overflow: hidden;">
+  					<h5 class="white-text">Connect</h5>
+  				 </div>
+  			</div>
+  		</div>
+  		<div class="footer-copyright">
+  			<div class="container">
+  			© 2014-2015 Materialize, All rights reserved.
+  			</div>
+  		</div>
+  </footer>
+  
+  {{if eq .RunMode "dev"}}
+    {{template "debug.html" .}}
+  {{end}}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  {{range .moreScripts}}
+    <script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
+  {{end}}
+
+  </body>
+</html>
