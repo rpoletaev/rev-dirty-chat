@@ -1,0 +1,34 @@
+  <footer class="chat-footer">
+  		<div class="container">
+  			<div class="row">
+  				<div class="input-field col l8 s12">
+            <i class="material-icons prefix">mode_edit</i>
+            <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+            <label for="icon_prefix2">Введите сообщение</label> 
+          </div>
+            <form action="">
+              <button class="btn valign-wrapper waves-effect waves-light" type="submit" name="Send">
+              Отправить
+              <i class="material-icons">send</i>
+             </button>
+            </form>
+  		  </div>
+      </div>
+  </footer>
+  
+  {{if eq .RunMode "dev"}}
+    {{template "debug.html" .}}
+  {{end}}
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="/public/js/materialize.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/public/js/init.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/public/js/controller.js" type="text/javascript" charset="utf-8"></script>
+
+  {{range .moreScripts}}
+    <script src="/public/js/{{.}}" type="text/javascript" charset="utf-8"></script>
+  {{end}}
+
+  </body>
+</html>

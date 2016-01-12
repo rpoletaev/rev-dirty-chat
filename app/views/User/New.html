@@ -1,0 +1,49 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<main>
+
+  <div class="row">
+    <div class="container">
+      {{template "flash.html" .}}
+    </div>
+  </div>
+  <div class="row">
+    <form class="col s12" id="SignForm" method="POST" name="SignForm" action="/user/create">
+      <div class="container">
+          <div class="row">
+            <div class="input-field col l4 offset-l4 s12">
+                <input placeholder="Имя пользователя" id="login" name="login" type="text" class="validate">
+                <!-- <label for="login">Имя пользователя</label> -->
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col l4 offset-l4 s12">
+                <input placeholder="Пароль" id="password" type="password" name="password" class="validate">
+                <!-- <label for="password">Пароль</label> -->
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col l4 offset-l4 s12">
+                <input placeholder="Повторим" id="confirm_password" type="password" class="validate">
+                <!-- <label for="confirm_password">Повторим</label> -->
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="input-field col l4 offset-l4 s12">
+              <input placeholder="Email" id="email" type="email" name="email" class="validate">
+              <!-- <label for="email">Email</label> -->
+            </div>
+          </div>
+        </form>
+        <div class="row">
+            <input class="btn col l4 offset-l4 s12" type="submit" value="Поехали" form="SignForm"/>
+        </div>
+      </div>
+  </div>
+</main>
+
+{{template "footer.html" .}}

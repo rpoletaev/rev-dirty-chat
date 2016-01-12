@@ -2184,6 +2184,12 @@ footer.page-footer {
     color: rgba(255, 255, 255, 0.8);
     background-color: rgba(51, 51, 51, 0.08); }
 
+footer.chat-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  background-color: #f2f2f2; 
+}
+
 table, th, td {
   border: none; }
 

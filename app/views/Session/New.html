@@ -1,0 +1,34 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<main>
+  <div class="row">
+    <div class="container">
+      {{template "flash.html" .}}
+    </div>
+  </div>
+  <div class="row">
+    <div class="container">
+      <form class="col s12" id="LoginForm" method="POST" name="LoginForm" action="/session/create">
+        <div class="row">
+          <div class="input-field col l4 offset-l4 s12">
+              <input id="password" placeholder="Пароль" name="password" type="password" class="validate">
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col l4 offset-l4 s12">
+            <input id="email" placeholder="email" name="email" type="email" class="validate">
+          </div>
+        </div>
+      </form>
+      <div class="row">
+        <input class="btn col l4 offset-l4 s12" type="submit" value="Вход" form="LoginForm"/>
+      </div>
+      <div class="row">
+        <a class="col l4 offset-l4 s12" href="/user/new">Регистрация</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+{{template "footer.html" .}}

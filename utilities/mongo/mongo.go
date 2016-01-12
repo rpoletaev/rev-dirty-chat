@@ -258,10 +258,13 @@ func ToString(queryMap bson.M) string {
 func Execute(sessionId string, mongoSession *mgo.Session, databaseName string, collectionName string, mongoCall MongoCall) (err error) {
 	tracelog.STARTEDf(sessionId, "Execute", "Database[%s] Collection[%s]", databaseName, collectionName)
 
+	if mongoSession == nil {
+		tracelog.INFO("routineName", sessionId, "Execute, какая то хуйня с сессией")
+	}
+
 	// Capture the specified collection
 	collection, err := GetCollection(mongoSession, databaseName, collectionName)
 	if err != nil {
-
 		tracelog.COMPLETED_ERROR(err, sessionId, "Execute")
 		return err
 	}
@@ -269,7 +272,6 @@ func Execute(sessionId string, mongoSession *mgo.Session, databaseName string, c
 	// Execute the mongo call
 	err = mongoCall(collection)
 	if err != nil {
-
 		tracelog.COMPLETED_ERROR(err, sessionId, "Execute")
 		return err
 	}

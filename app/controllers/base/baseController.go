@@ -1,22 +1,10 @@
-// Copyright 2013 Ardan Studios. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE handle.
-
-/*
-	ControllerBase provides all the boilerplate code for controllers.
-	Intercept functions are implemented to handle getting a MongoDB
-	session and to release that session.
-
-	The ControllerBase also provides access to the services base object
-	providing boilerplate code and state for the different services.
-*/
 package controllerBase
 
 import (
+	"github.com/revel/revel"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
-	"github.com/revel/revel"
 )
 
 //** TYPES
@@ -33,6 +21,8 @@ type (
 
 // Before is called prior to the controller method
 func (this *BaseController) Before() revel.Result {
+	tracelog.TRACE("BEFORE BASE SESSION", "UserId[%s] Path[%s]", this.Session.Id(), this.Request.URL.Path)
+
 	this.UserId = this.Session.Id()
 	tracelog.TRACE(this.UserId, "Before", "UserId[%s] Path[%s]", this.Session.Id(), this.Request.URL.Path)
 
@@ -80,4 +70,22 @@ func (this *BaseController) Base() *BaseController {
 // Services returns a pointer to the base services
 func (this *BaseController) Services() *services.Service {
 	return &this.Service
+}
+
+func (this *BaseController) Authenticated() bool {
+	if this.Session["Authenticated"] == "" {
+		return false
+	}
+
+	authenticated := this.Session["Authenticated"]
+	return authenticated == "true"
+}
+
+func (this *BaseController) IsAdmin() bool {
+	if this.Session["IsAdmin"] == "" {
+		return false
+	}
+
+	isAdmin := this.Session["IsAdmin"]
+	return isAdmin == "true"
 }

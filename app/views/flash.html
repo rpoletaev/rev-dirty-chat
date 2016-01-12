@@ -5,13 +5,13 @@
 {{end}}
 
 {{if or .errors .flash.error}}
-<div class="alert alert-error">
+<div class="card-panel teal lighten-2">
 	{{if .flash.error}}
-		{{.flash.error}}
+		<p class="center-align"> {{.flash.error}} </p>
 	{{end}}
-	<ul style="margin-top:10px;">
+	<ul>
 		{{range .errors}}
-			<li>{{.}}</li>
+			<li><p class="center-align">{{.}}</p></li>
 		{{end}}
 	</ul>
 </div>

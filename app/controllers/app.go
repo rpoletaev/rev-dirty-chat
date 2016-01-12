@@ -1,11 +1,18 @@
 package controllers
 
-import "github.com/revel/revel"
+import (
+	"github.com/revel/revel"
+	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
+)
 
 type App struct {
-	*revel.Controller
+	cb.BaseController
 }
 
-func (c App) Index() revel.Result {
-	return c.Render()
+func (c *App) Index() revel.Result {
+	if !c.Authenticated() {
+		return c.Redirect("/session/new")
+	} else {
+		return c.Render()
+	}
 }
