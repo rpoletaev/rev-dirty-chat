@@ -1,0 +1,38 @@
+main {
+	height:  80vh;
+	background-color: orange;
+}
+
+#user-menu{
+	background-color: blue;
+	height: 100%;
+	position: absolute;
+	overflow: auto;
+}
+
+#messages {
+	background-color: red;
+	height: 50vh;
+	overflow: auto;
+}
+
+#chat {
+	position: relative;
+	background-color: tequeila;
+}
+
+#rooms {
+	background-color: brown;
+	height: 50px;
+}
+#input-field{
+	background-color: green;
+	height: 20vh;
+	position: absolute;
+}
+
+#ads{
+	background-color: magenta;
+	height: 100px;
+	position: absolute;
+}

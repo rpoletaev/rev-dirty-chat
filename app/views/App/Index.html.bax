@@ -1,0 +1,89 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+{{template "common_hat.html" .}}
+
+<main>
+  <div class="row main-container">
+       <div id="user-menu" class="col s12 l3">
+            <ul class="collapsible" data-collapsible="expandable">
+              <li>
+                <div class="input-field collapsible-header">
+                  <i class="small material-icons prefix">search</i>
+                  <input id="icon_prefix" type="text" class="validate"/>
+                  <label for="icon_prefix">Поиск</label>
+                </div>
+                <div class="collapsible-body">
+                  <form action="#">
+                    <div>
+                      <h6>Пол</h6>
+                      <input name="sex" type="radio" id="radio_man" />
+                      <label for="radio_man">Мужчина</label>
+                      <br />
+                      <input name="sex" type="radio" id="radio_woman" />
+                      <label for="radio_woman">Женщина</label>
+                      <br />
+                      <input name="sex" type="radio" id="radio_trans"  />
+                      <label for="radio_trans">Транс</label>
+                    </div>
+                    <div class="divider"></div>
+                    <div>
+                      <h6>Позиционирование</h6>
+                      <input name="position" type="radio" id="radio_top" />
+                      <label for="radio_top">Топ</label>
+                      <br />
+                      <input name="position" type="radio" id="radio_bottom" />
+                      <label for="radio_bottom">Боттом</label>
+                      <br />
+                      <input name="position" type="radio" id="radio_switch"  />
+                      <label for="radio_switch">Свитч</label>
+                    </div>
+                    <div class="divider"></div>
+                    <div>
+                      <input type="checkbox" id="is_finder" />
+                          <label for="is_finder">Ищет знакомства</label>
+                    </div>
+                  </form>
+                </div>
+              </li>
+          </ul>
+      </div><!--user-menu-->
+      
+      <div class="container" id="chat">
+        <div class="row">
+          
+          <div id="messages" class="col s12 l9">
+              <div class="card-panel grey lighten-5 z-depth-1">
+                <div class="row valign-wrapper">
+                  <div class="col s2">
+                    <img src="/public/img/rp.jpg" alt="" class="circle responsive-img"/>
+                  </div>
+                  <div class="col s10">
+                    <span class="black-text">
+                      This is a square image. Add the "circle" class to it to make it appear circular.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div> <!--messages-->
+
+        </div>
+        <div class="row">
+          <div class="input-field col l8 s12">
+            <i class="material-icons prefix">mode_edit</i>
+            <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+            <label for="icon_prefix2">Введите сообщение</label> 
+          </div>
+            <form action="">
+              <button class="btn valign-wrapper waves-effect waves-light" type="submit" name="Send"> Отправить<i class="material-icons">send</i>
+             </button>
+            </form>
+        </div>
+      </div><!--input-field-->
+        </div>
+      </div><!--chat-->
+    
+
+  </div>
+</main>
+
+{{template "chat_footer.html" .}}

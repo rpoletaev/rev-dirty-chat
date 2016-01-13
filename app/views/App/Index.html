@@ -2,128 +2,26 @@
 {{template "header.html" .}}
 {{template "common_hat.html" .}}
 
-<main>
-  <div class="row">
-    <div class="col s12 l9">
-      <div id="chat">
-        <div class="card-panel grey lighten-5 z-depth-1">
-          <div class="row valign-wrapper">
-            <div class="col s2">
-              <img src="/public/img/rp.jpg" alt="" class="circle responsive-img"/>
-            </div>
-            <div class="col s10">
-              <span class="black-text">
-                This is a square image. Add the "circle" class to it to make it appear circular.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col s12 l3">
-        <ul class="collapsible" data-collapsible="expandable">
-          <li>
-            <div class="input-field collapsible-header">
-              <i class="small material-icons prefix">search</i>
-              <input id="icon_prefix" type="text" class="validate"/>
-              <label for="icon_prefix">Поиск</label>
-            </div>
-            <div class="collapsible-body">
-              <form action="#">
-                <div>
-                  <h6>Пол</h6>
-                  <input name="sex" type="radio" id="radio_man" />
-                  <label for="radio_man">Мужчина</label>
-                  <br />
-                  <input name="sex" type="radio" id="radio_woman" />
-                  <label for="radio_woman">Женщина</label>
-                  <br />
-                  <input name="sex" type="radio" id="radio_trans"  />
-                  <label for="radio_trans">Транс</label>
-                </div>
-                <div class="divider"></div>
-                <div>
-                  <h6>Позиционирование</h6>
-                  <input name="position" type="radio" id="radio_top" />
-                  <label for="radio_top">Топ</label>
-                  <br />
-                  <input name="position" type="radio" id="radio_bottom" />
-                  <label for="radio_bottom">Боттом</label>
-                  <br />
-                  <input name="position" type="radio" id="radio_switch"  />
-                  <label for="radio_switch">Свитч</label>
-                </div>
-                <div class="divider"></div>
-                <div>
-                  <input type="checkbox" id="is_finder" />
-                      <label for="is_finder">Ищет знакомства</label>
-                </div>
-              </form>
-            </div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              <div class="row valign-wrapper">
-                 <div class="col s2">
-                  <img class="circle" width="32px" height="32px" src="/public/img/rp.jpg" />
-                 </div>
-                 <div class="col s10">
-                  <span class="black-text">
-                    Poletaev Roman
-                  </span>
-                 </div>
-              </div>
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              <div class="row valign-wrapper">
-                 <div class="col s2">
-                  <img class="circle" width="32px" height="32px" src="/public/img/rp.jpg" />
-                 </div>
-                 <div class="col s10">
-                  <span class="black-text">
-                    Other User
-                  </span>
-                 </div>
-              </div>
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              item2
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              item2
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              item2
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              item2
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-          <li>
-            <div class="collapsible-header">
-              item2
-            </div>
-            <div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div>
-          </li>
-      </ul>
-    </div>
-  </div>
+<main class="main-container">
+	<div class="row">
+		<div id="user-menu" class="col s12 l3">
+		</div><!--user-menu-->
+					  
+	 	<div class="col l9 s12" id="chat">
+	 		<div class="row">
+	 		 	<div id="rooms" class="col s12 l12">
+	 			</div> <!--rooms-->
+	 		</div>
+			<div class="row">
+		  		<div id="messages" class="col s12 l12">
+		  		</div> <!--messages-->
+			</div>
+	  		<div class="row">
+		 		 <div id="input-field" class="col l12 s12">
+		 	 	</div><!--input-field-->
+			</div>
+		</div><!--chat-->
+  	</div>
 </main>
 
 {{template "chat_footer.html" .}}
