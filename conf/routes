@@ -1,23 +1,21 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
-
 module:testrunner
 
-GET     /                                       App.Index
+GET     /                                    App.Index
 
-GET		/session/new		Session.New
+GET	/session/new		Session.New
 POST	/session/create		Session.Create
 
-#GET	/user				User.Index
-GET		/user/new  			User.New
-POST	/user/create 		User.Create
+#GET	/account		Account.Index
+GET	/account/new  		Account.New
+POST	/account/create 	Account.Create
 
-# Ignore favicon requests
+
+GET 	/user/:account/create  	User.Create
+GET 	/user/:account/edit	User.Edit
+GET 	/user/:account		User.Show
+
 GET     /favicon.ico        404
 
-# Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath   Static.Serve("public")
 
-# Catch all
 * /:controller/:action      :controller.:action

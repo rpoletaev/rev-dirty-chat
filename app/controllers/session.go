@@ -22,36 +22,36 @@ func (c *Session) New() revel.Result {
 	if !c.Authenticated() {
 		return c.Render()
 	} else {
-		return c.NotFound("нужно пользака запилить") //c.Redirect("/user")
+		return c.NotFound("нужно пользака запилить") //c.Redirect("/account")
 	}
 }
 
 func (c *Session) Create(password, email string) revel.Result {
 	var (
-		err          error
-		originalUser *models.User
-		loginForm    models.User
+		err             error
+		originalAccount *models.Account
+		loginForm       models.Account
 	)
 
-	loginForm = models.User{
+	loginForm = models.Account{
 		HashedPassword: password,
 		Email:          email,
 	}
 
-	originalUser, err = auth.FindUserByEmail(c.Services(), loginForm.Email)
+	originalAccount, err = auth.FindAccountByEmail(c.Services(), loginForm.Email)
 	if err != nil {
 		c.Flash.Error("Не удалось найти пользователя с email: ", loginForm.Email)
 		return c.Redirect((*Session).New)
 	}
 
-	err = auth.VerifyPassword(loginForm.HashedPassword, originalUser)
+	err = auth.VerifyPassword(loginForm.HashedPassword, originalAccount)
 	if err != nil {
 		c.Flash.Error("Неправильно указаны данные для входа")
 		return c.Redirect((*Session).New)
 	}
 
 	c.Session["Authenticated"] = "true"
-	if originalUser.IsAdmin {
+	if originalAccount.IsAdmin {
 		c.Session["IsAdmin"] = "true"
 		return c.Redirect((*App).Index)
 	}

@@ -22,6 +22,10 @@ type (
 // Before is called prior to the controller method
 func (this *BaseController) Before() revel.Result {
 	tracelog.TRACE("BEFORE BASE SESSION", "UserId[%s] Path[%s]", this.Session.Id(), this.Request.URL.Path)
+	
+	if !this.Session.Authenticated(){
+		if this.Controller.Request.URL.Path == "/session/create" || 
+	}
 
 	this.UserId = this.Session.Id()
 	tracelog.TRACE(this.UserId, "Before", "UserId[%s] Path[%s]", this.Session.Id(), this.Request.URL.Path)

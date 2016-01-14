@@ -20,56 +20,56 @@ import (
 
 //** PUBLIC FUNCTIONS
 
-func FindUserByEmail(service *services.Service, email string) (user *models.User, err error) {
-	defer helper.CatchPanic(&err, service.UserId, "FindUserByEmail")
+func FindAccountByEmail(service *services.Service, email string) (account *models.Account, err error) {
+	defer helper.CatchPanic(&err, service.UserId, "FindAccountByEmail")
 
-	tracelog.STARTED(service.UserId, "FindUserByEmail")
+	tracelog.STARTED(service.UserId, "FindAccountByEmail")
 
 	queryMap := bson.M{"email": email}
-	tracelog.TRACE(helper.MAIN_GO_ROUTINE, "FindUserByEmail", "Query : %s", mongo.ToString(queryMap))
+	tracelog.TRACE(helper.MAIN_GO_ROUTINE, "FindAccountByEmail", "Query : %s", mongo.ToString(queryMap))
 
 	// Execute the query
-	user = &models.User{}
-	err = service.DBAction("users",
+	account = &models.Account{}
+	err = service.DBAction("accounts",
 		func(collection *mgo.Collection) error {
-			return collection.Find(queryMap).One(user)
+			return collection.Find(queryMap).One(account)
 		})
 
 	if err != nil {
-		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindUserByEmail")
-		return user, err
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindAccountByEmail")
+		return account, err
 	}
 
-	tracelog.COMPLETED(service.UserId, "FindUserByEmail")
-	return user, err
+	tracelog.COMPLETED(service.UserId, "FindAccountByEmail")
+	return account, err
 }
 
-func VerifyPassword(password string, user *models.User) (err error) {
-	err = bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password))
+func VerifyPassword(password string, account *models.Account) (err error) {
+	err = bcrypt.CompareHashAndPassword([]byte(account.HashedPassword), []byte(password))
 	return err
 }
 
-func SetUserPassword(user *models.User) (err error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcrypt.DefaultCost)
-	user.HashedPassword = string(hash)
+func SetAccountPassword(account *models.Account) (err error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(account.HashedPassword), bcrypt.DefaultCost)
+	account.HashedPassword = string(hash)
 	return err
 }
 
-func InsertUser(service *services.Service, user *models.User) (err error) {
-	defer helper.CatchPanic(&err, service.UserId, "InsertUser")
+func InsertAccount(service *services.Service, account *models.Account) (err error) {
+	defer helper.CatchPanic(&err, service.UserId, "InsertAccount")
 
-	SetUserPassword(user)
+	SetAccountPassword(account)
 
-	err = service.DBAction("users",
+	err = service.DBAction("accounts",
 		func(collection *mgo.Collection) error {
-			return collection.Insert(user)
+			return collection.Insert(account)
 		})
 
 	if err != nil {
-		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "InsertUser")
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "InsertAccount")
 		return err
 	}
 
-	tracelog.COMPLETED(service.UserId, "InsertUser")
+	tracelog.COMPLETED(service.UserId, "InsertAccount")
 	return nil
 }

@@ -1,23 +1,44 @@
-// Copyright 2013 Ardan Studios. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE handle.
-
-/*
-	BuoyModels contains the models for the buoy service
-*/
 package models
 
-// import (
-// 	"gopkg.in/mgo.v2/bson"
-// )
+import (
+	"time"
+)
 
 //** TYPES
 
-type (
-	User struct {
-		Email          string `bson:"email"`
-		HashedPassword string `bson:"password"`
-		Login          string `bson:"login"`
-		IsAdmin        bool   `bson:"isadmin"`
-	}
-)
+type User struct {
+	AccountLogin string    `bson: "accountlogin"`
+	VisibleName  string    `bson: "visiblename"`
+	Sex          string    `bson: "sex"`
+	Position     string    `bson: "position"`
+	Interest     string    `bson: "interest"`
+	DateOfBirth  time.Time `bson: "dateofbirth"`
+	ShowInSearch bool      `bson: "showinsearch"`
+	About        string    `bson: "about"`
+	Region       string    `bson: "region"`
+	Status       string    `bson: "status"`
+	Avatar       string    `bson: "avatar"`
+}
+
+func (u User) Age() int {
+	return 30
+}
+
+func (u User) Zodiac() string {
+	return "leo"
+}
+
+type Sex struct {
+	Name    string `bson: "name"`
+	Caption string `bson: "caption"`
+}
+
+type Position struct {
+	Name    string `bson: "name"`
+	Caption string `bson: "caption"`
+}
+
+type Region struct {
+	ID   string `bson: "_id"`
+	Name string `bson: "name"`
+}

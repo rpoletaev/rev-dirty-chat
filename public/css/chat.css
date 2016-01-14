@@ -1,24 +1,23 @@
 main {
 	height:  80vh;
 	background-color: orange;
+	padding: 3px;
 }
 
 #user-menu{
 	background-color: blue;
-	height: 100%;
-	position: absolute;
+	height: 80vh;
 	overflow: auto;
 }
 
 #messages {
 	background-color: red;
-	height: 50vh;
+	height: 300px;
 	overflow: auto;
 }
 
 #chat {
-	position: relative;
-	background-color: tequeila;
+	background-color: white;
 }
 
 #rooms {
@@ -27,8 +26,7 @@ main {
 }
 #input-field{
 	background-color: green;
-	height: 20vh;
-	position: absolute;
+	height: 50px;
 }
 
 #ads{
