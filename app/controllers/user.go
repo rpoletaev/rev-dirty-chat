@@ -6,7 +6,6 @@ import (
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
-	"time"
 )
 
 type User struct {
@@ -20,9 +19,13 @@ func init() {
 }
 
 func (u *User) Edit(account string) revel.Result {
+	if !u.Authenticated() {
+		return u.Redirect("/session/new")
+	}
+
 	user, err := userService.FindUser(u.Services(), account)
 	if err != nil {
-		return u.Redirect("/user/%s/edit", account)
+		return u.NotFound("Пользователь [%s] не найден", account)
 	}
 
 	return u.RenderJson(user)
@@ -33,19 +36,7 @@ func (u *User) Edit(account string) revel.Result {
 // }
 
 func (u *User) Create(account string) revel.Result {
-	user := models.User{
-		AccountLogin: account,
-		VisibleName:  account,
-		Sex:          "man",
-		Position:     "top",
-		Interest:     "Укажите свои интересы",
-		DateOfBirth:  time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
-		ShowInSearch: true,
-		About:        "Что Вы можете рассказать о себе?",
-		Region:       "Краснодарский край",
-		Status:       "",
-		Avatar:       "/public/img/noavatar.png",
-	}
+	user := models.CreateUser(account)
 	err := userService.InsertUser(u.Services(), &user)
 	if err != nil {
 		return u.RenderError(err)
@@ -55,10 +46,14 @@ func (u *User) Create(account string) revel.Result {
 }
 
 func (u *User) Show(account string) revel.Result {
-	user, err := userService.FindUser(u.Services(), account)
-	if err != nil {
-		return u.NotFound("Пользователь не найден")
+	if !u.Authenticated() {
+		return u.Redirect("/session/new")
 	}
 
-	return u.RenderJson(user)
+	user, err := userService.FindUser(u.Services(), account)
+	if err != nil {
+		return u.Redirect("/user/%s/create", account)
+	}
+
+	return u.Render(user)
 }

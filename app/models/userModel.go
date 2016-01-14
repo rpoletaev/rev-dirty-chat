@@ -18,6 +18,24 @@ type User struct {
 	Region       string    `bson: "region"`
 	Status       string    `bson: "status"`
 	Avatar       string    `bson: "avatar"`
+	CreateDate   time.Time `bson: "createdt"`
+}
+
+func CreateUser(account string) User {
+	return User{
+		AccountLogin: account,
+		VisibleName:  account,
+		Sex:          "man",
+		Position:     "top",
+		Interest:     "Укажите свои интересы",
+		DateOfBirth:  time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+		ShowInSearch: true,
+		About:        "Что Вы можете рассказать о себе?",
+		Region:       "Краснодарский край",
+		Status:       "",
+		Avatar:       "/public/img/avatar/noavatar.png",
+		CreateDate:   time.Now(),
+	}
 }
 
 func (u User) Age() int {

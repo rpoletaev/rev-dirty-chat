@@ -1,0 +1,23 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+{{template "common_hat.html" .}}
+
+	<main>
+		<div class="row">
+			<div class="col S12 l4">
+				<img src="{{.user.Avatar}}" alt="">
+			</div>
+			<div class="col s12 l8">
+				<h4>{{.user.VisibleName}}</h4>
+				<span class="indigo lighten-4">{{.user.Status}}</span>
+				<p>{{.user.Sex}}</p>
+				<p>{{.user.Position}}</p>
+				<p>{{.user.DateOfBirth}}</p>
+				<hr>
+				<div class="card-panel indigo lighten-4 hoverable">{{.user.Interest}}</div>
+				<div class="card-panel indigo lighten-4 hoverable">{{.user.About}}</div>
+			</div>
+		</div>
+	</main>
+
+{{template "footer.html" .}}

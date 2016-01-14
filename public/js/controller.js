@@ -18,7 +18,6 @@ commonObjects.controller('CommonObjectList', ['$scope', '$http', function($scope
 			}
 		} 
 	};
-
 }]);
 
 	

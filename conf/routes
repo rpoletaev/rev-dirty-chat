@@ -2,17 +2,17 @@ module:testrunner
 
 GET     /                                    App.Index
 
-GET	/session/new		Session.New
+GET		/session/new		Session.New
 POST	/session/create		Session.Create
 
-#GET	/account		Account.Index
-GET	/account/new  		Account.New
+#GET	/account			Account.Index
+GET		/account/new  		Account.New
 POST	/account/create 	Account.Create
 
 
 GET 	/user/:account/create  	User.Create
-GET 	/user/:account/edit	User.Edit
-GET 	/user/:account		User.Show
+GET 	/user/:account/edit		User.Edit
+GET 	/user/:account			User.Show
 
 GET     /favicon.ico        404
 
