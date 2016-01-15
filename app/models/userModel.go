@@ -9,8 +9,8 @@ import (
 type User struct {
 	AccountLogin string    `bson: "accountlogin"`
 	VisibleName  string    `bson: "visiblename"`
-	Sex          string    `bson: "sex"`
-	Position     string    `bson: "position"`
+	Sex          Sex       `bson: "sex"`
+	Position     Position  `bson: "position"`
 	Interest     string    `bson: "interest"`
 	DateOfBirth  time.Time `bson: "dateofbirth"`
 	ShowInSearch bool      `bson: "showinsearch"`
@@ -25,8 +25,8 @@ func CreateUser(account string) User {
 	return User{
 		AccountLogin: account,
 		VisibleName:  account,
-		Sex:          "man",
-		Position:     "top",
+		Sex:          Sex{Name: "man", Caption: "Мужчина"},
+		Position:     Position{Name: "top", Caption: "Верх"},
 		Interest:     "Укажите свои интересы",
 		DateOfBirth:  time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 		ShowInSearch: true,
