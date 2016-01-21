@@ -52,3 +52,47 @@ func InsertUser(service *services.Service, user *models.User) (err error) {
 	tracelog.COMPLETED(service.UserId, "InsertUser")
 	return nil
 }
+
+func GetSexes() []models.Sex {
+	sexes := []models.Sex{
+		models.Sex{
+			Name:    "woman",
+			Caption: "Женщина",
+			Current: false,
+		},
+		models.Sex{
+			Name:    "man",
+			Caption: "Мужчина",
+			Current: false,
+		},
+		models.Sex{
+			Name:    "trans",
+			Caption: "Транс",
+			Current: false,
+		},
+	}
+
+	return sexes
+}
+
+func GetPositions() []models.Position {
+	positions := []models.Position{
+		models.Position{
+			Name:    "top",
+			Caption: "Верх",
+			Current: false,
+		},
+		models.Position{
+			Name:    "bottom",
+			Caption: "Низ",
+			Current: false,
+		},
+		models.Position{
+			Name:    "switch",
+			Caption: "Свитч",
+			Current: false,
+		},
+	}
+
+	return positions
+}

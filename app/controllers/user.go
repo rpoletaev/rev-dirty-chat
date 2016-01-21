@@ -6,6 +6,7 @@ import (
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
+	// "github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
 )
 
 type User struct {
@@ -28,7 +29,18 @@ func (u *User) Edit(account string) revel.Result {
 		return u.NotFound("Пользователь [%s] не найден", account)
 	}
 
-	return u.RenderJson(user)
+	positions := userService.GetPositions()
+	for i := 0; i < len(positions); i++ {
+		positions[i].Current = positions[i].Name == user.Position.Name
+	}
+
+	sexes := userService.GetSexes()
+	for i := 0; i < len(sexes); i++ {
+		sexes[i].Current = sexes[i].Name == user.Position.Name
+	}
+
+	// return u.Render(user, positions, sexes)
+	return u.RenderJson(sexes)
 }
 
 // func (u *User) Update(account string) revel.Result {

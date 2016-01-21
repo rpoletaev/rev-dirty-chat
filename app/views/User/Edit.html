@@ -1,3 +1,7 @@
+	{{set . "title" "Home"}}
+	{{template "header.html" .}}
+	{{template "common_hat.html" .}}
+
 	<main>
 		<div class="row">
 			<div class="col s12 l12">
@@ -5,37 +9,31 @@
 					<div class="container">
 						<div class="col s12 l4">
 							<h5>Пол</h5>
-							<input name="sex" type="radio" id="radio_man" value="0"/>
-							<label for="radio_man">Мужчина</label>
+							{{range .sexes}}
+							<input name="sex" type="radio" id={{.Name}} value={{.Name}} checked={{.Current}} />
+							<label for={{.Name}} >{{.Caption}}</label>
 							<br>
-							<input name="sex" type="radio" id="radio_woman" value="1"/>
-							<label for="radio_woman">Женщина</label>
-							<br>
-							<input name="sex" type="radio" id="radio_trans" value="2" />
-							<label for="radio_trans">Транс</label>
+							{{end}}
 						</div>
 						<div class="col s12 l4">
 							<h5>Позиционирование</h5>
-							<input name="position" type="radio" id="radio_top" value="0" />
-							<label for="radio_top">Топ</label>
+							{{range .positions}}
+							<input name="position" type="radio" id={{.Name}} value={{.Name}} checked={{.Current}} />
+							<label for={{.Name}} >{{.Caption}}</label>
 							<br>
-							<input name="position" type="radio" id="radio_bottom" value="1" />
-							<label for="radio_bottom">Боттом</label>
-							<br>
-							<input name="position" type="radio" id="radio_switch" value="2" />
-							<label for="radio_switch">Свитч</label>
+							{{end}}
 						</div>
 						<div class="divider col s12 l7"></div>
 						<div class="col s12 l6">
 							<h5>Дата рождения</h5>
-							<input type="date" class="datepicker">	
+							<input type="date" class="datepicker" value={{.user.DateOfBirth}}>	
 						</div>
 						<div class="col s12 l12">
 							<h5>Показывать в результатах поиска для знакомств?</h5>
 							<div class="switch">
 								<label>
 								 Нет
-								  <input type="checkbox">
+							  <input type="checkbox" checked={{.user.ShowInSearch}}>
 								  <span class="lever"></span>
 								  Да
 								</label>
@@ -52,3 +50,5 @@
 				</form>
 			</div>
 	</main>
+
+{{template "footer.html" .}}

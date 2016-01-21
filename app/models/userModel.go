@@ -49,11 +49,13 @@ func (u User) Zodiac() string {
 type Sex struct {
 	Name    string `bson: "name"`
 	Caption string `bson: "caption"`
+	Current bool
 }
 
 type Position struct {
 	Name    string `bson: "name"`
 	Caption string `bson: "caption"`
+	Current bool
 }
 
 type Region struct {
