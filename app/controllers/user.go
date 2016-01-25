@@ -2,11 +2,22 @@ package controllers
 
 import (
 	//"errors"
+	"bytes"
+	//"fmt"
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
-	// "github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+)
+
+const (
+	_      = iota
+	KB int = 1 << (10 * iota)
+	MB
+	GB
 )
 
 type User struct {
@@ -39,8 +50,8 @@ func (u *User) Edit(account string) revel.Result {
 		sexes[i].Current = sexes[i].Name == user.Position.Name
 	}
 
-	// return u.Render(user, positions, sexes)
-	return u.RenderJson(sexes)
+	return u.Render(user, positions, sexes)
+	// return u.RenderJson(sexes)
 }
 
 // func (u *User) Update(account string) revel.Result {
@@ -68,4 +79,40 @@ func (u *User) Show(account string) revel.Result {
 	}
 
 	return u.Render(user)
+}
+
+func (u *User) AvatarUpload(avatar []byte) revel.Result {
+	u.Validation.Required(avatar)
+	u.Validation.MinSize(avatar, 2*KB).
+		Message("Minimum a file size of 2KB expected")
+	u.Validation.MaxSize(avatar, 2*MB).
+		Message("File cannot be larger than 2MB")
+
+	// Check format of the file.
+	conf, format, err := image.DecodeConfig(bytes.NewReader(avatar))
+	u.Validation.Required(err == nil).Key("avatar").
+		Message("Incorrect file format")
+	u.Validation.Required(format == "jpeg" || format == "png").Key("avatar").
+		Message("JPEG or PNG file format is expected")
+
+	// Check resolution.
+	u.Validation.Required(conf.Height >= 150 && conf.Width >= 150).Key("avatar").
+		Message("Minimum allowed resolution is 150x150px")
+
+	// Handle errors.
+	if u.Validation.HasErrors() {
+		u.Validation.Keep()
+		u.FlashParams()
+		return u.Redirect("/user/" + u.Name + "/edit")
+	}
+
+	return u.RenderText("File processed")
+	// return u.RenderJson(FileInfo{
+	// 	ContentType: u.Params.Files["avatar"][0].Header.Get("Content-Type"),
+	// 	Filename:    u.Params.Files["avatar"][0].Filename,
+	// 	RealFormat:  format,
+	// 	Resolution:  fmt.Sprintf("%dx%d", conf.Width, conf.Height),
+	// 	Size:        len(avatar),
+	// 	Status:      "Successfully uploaded",
+	// })
 }

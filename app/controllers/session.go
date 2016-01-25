@@ -64,5 +64,6 @@ func (c *Session) Drop() revel.Result {
 		delete(c.Session, k)
 	}
 
-	return c.Redirect("/")
+	return c.RenderText(c.Request.Method)
+	//return c.Redirect("/")
 }

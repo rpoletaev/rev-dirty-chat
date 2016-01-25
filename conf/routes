@@ -4,6 +4,7 @@ GET     /                                    App.Index
 
 GET		/session/new		Session.New
 POST	/session/create		Session.Create
+POST 	/session/drop		Session.Drop
 
 #GET	/account			Account.Index
 GET		/account/new  		Account.New
@@ -13,7 +14,7 @@ POST	/account/create 	Account.Create
 GET 	/user/:account/create  	User.Create
 GET 	/user/:account/edit		User.Edit
 GET 	/user/:account			User.Show
-
+POST 	/user/:account/avatarupload 	User.AvatarUpload
 GET     /favicon.ico        404
 
 GET     /public/*filepath   Static.Serve("public")

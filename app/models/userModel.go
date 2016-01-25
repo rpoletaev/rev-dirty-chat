@@ -4,7 +4,9 @@ import (
 	"time"
 )
 
-//** TYPES
+const (
+	DATEFORMAT = "01 January, 2006"
+)
 
 type User struct {
 	AccountLogin string    `bson: "accountlogin"`
@@ -38,11 +40,14 @@ func CreateUser(account string) User {
 	}
 }
 
-func (u User) Age() int {
+func (u *User) Age() int {
 	return 30
 }
 
-func (u User) Zodiac() string {
+func (u *User) PickerBirthDate() string {
+	return u.DateOfBirth.Format(DATEFORMAT)
+}
+func (u *User) Zodiac() string {
 	return "leo"
 }
 

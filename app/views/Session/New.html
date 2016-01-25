@@ -20,6 +20,7 @@
             <input id="email" placeholder="email" name="email" type="email" class="validate">
           </div>
         </div>
+        <input type="hidden" name="csrf_token" value="{{.csrf_token}}" />
       </form>
       <div class="row">
         <input class="btn col l4 offset-l4 s12" type="submit" value="Вход" form="LoginForm"/>

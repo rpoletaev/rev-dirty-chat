@@ -1,6 +1,7 @@
 	{{set . "title" "Home"}}
 	{{template "header.html" .}}
 	{{template "common_hat.html" .}}
+	{{$user := .user}}
 
 	<main>
 		<div class="row">
@@ -8,9 +9,12 @@
 				<form action="#">
 					<div class="container">
 						<div class="col s12 l4">
+							<h5 id="login">{{.user.AccountLogin}}</h5>
+						</div>
+						<div class="col s12 l4">
 							<h5>Пол</h5>
 							{{range .sexes}}
-							<input name="sex" type="radio" id={{.Name}} value={{.Name}} checked={{.Current}} />
+							<input name="sex" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Sex.Name }}checked{{end}} />
 							<label for={{.Name}} >{{.Caption}}</label>
 							<br>
 							{{end}}
@@ -18,7 +22,7 @@
 						<div class="col s12 l4">
 							<h5>Позиционирование</h5>
 							{{range .positions}}
-							<input name="position" type="radio" id={{.Name}} value={{.Name}} checked={{.Current}} />
+							<input name="position" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Position.Name}} checked {{end}} />
 							<label for={{.Name}} >{{.Caption}}</label>
 							<br>
 							{{end}}
@@ -26,7 +30,7 @@
 						<div class="divider col s12 l7"></div>
 						<div class="col s12 l6">
 							<h5>Дата рождения</h5>
-							<input type="date" class="datepicker" value={{.user.DateOfBirth}}>	
+							<input type="date" class="datepicker" value={{.user.PickerBirthDate}}>	<!-- {{.user.DateOfBirth}} -->
 						</div>
 						<div class="col s12 l12">
 							<h5>Показывать в результатах поиска для знакомств?</h5>

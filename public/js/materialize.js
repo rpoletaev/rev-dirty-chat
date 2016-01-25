@@ -2595,7 +2595,7 @@ $(document).ready(function(){
     });
 
 
-    // File Input Path
+    File Input Path
     $('.file-field').each(function() {
       var path_input = $(this).find('input.file-path');
       $(this).find('input[type="file"]').change(function () {
