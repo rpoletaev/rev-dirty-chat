@@ -19,13 +19,15 @@ $('.datepicker').pickadate({
 // 	});
 // });
 
-$('#avatar').on('change', function(){
-	var file_data = $('#avatar').prop('files')[0];
+$('input.file-path').on('change', function(){
+	var file_data = $('input#avatar')[0].files[0];
 	var form_data = new FormData();
-	form_data.append('file', file_data);
-	var upload_path = '/user/' + $('#login').text + '/avatarupload'
+	var token = $("input[name='csrf_token']")[0].value;
+	form_data.append('avatar', file_data);
+	form_data.append('csrf_token', token);
+	//var upload_path = '/user/' + $('#login')[0].text + '/avatarupload'
 	$.ajax({
-		url: 'user',
+		url: 'avatarupload',
 		dataType: 'text',
 		cache: false,
 		contentType: false,

@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	//"errors"
 	"bytes"
-	//"fmt"
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
@@ -81,8 +79,8 @@ func (u *User) Show(account string) revel.Result {
 	return u.Render(user)
 }
 
-func (u *User) AvatarUpload(avatar []byte) revel.Result {
-	u.Validation.Required(avatar)
+func (u *User) AvatarUpload(account string, avatar []byte) revel.Result {
+	u.Validation.Required(avatar).Message("файла нема")
 	u.Validation.MinSize(avatar, 2*KB).
 		Message("Minimum a file size of 2KB expected")
 	u.Validation.MaxSize(avatar, 2*MB).
@@ -103,7 +101,7 @@ func (u *User) AvatarUpload(avatar []byte) revel.Result {
 	if u.Validation.HasErrors() {
 		u.Validation.Keep()
 		u.FlashParams()
-		return u.Redirect("/user/" + u.Name + "/edit")
+		return u.RenderJson(u.Flash.Error)
 	}
 
 	return u.RenderText("File processed")

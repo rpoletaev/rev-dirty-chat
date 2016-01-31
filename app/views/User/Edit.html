@@ -47,9 +47,10 @@
 							<input class="file-path validate col s12 l10" type="text"/>
 							<div class="btn col s12 l2">
 								<span>avatar</span>
-								<input type="file" />
+								<input id='avatar' type="file" />
 							</div>
 						</div>
+						<input type="hidden" name="csrf_token" value="{{.csrf_token}}" />
 					</div>
 				</form>
 			</div>
