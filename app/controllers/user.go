@@ -7,8 +7,8 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
 	"image"
-	_ "image/jpeg"
-	_ "image/png"
+	// _ "image/jpeg"
+	// _ "image/png"
 )
 
 const (
@@ -87,14 +87,14 @@ func (u *User) AvatarUpload(account string, avatar []byte) revel.Result {
 		Message("File cannot be larger than 2MB")
 
 	// Check format of the file.
-	conf, format, err := image.DecodeConfig(bytes.NewReader(avatar))
+	img, format, err := image.Decode(bytes.NewReader(avatar))
 	u.Validation.Required(err == nil).Key("avatar").
 		Message("Incorrect file format")
 	u.Validation.Required(format == "jpeg" || format == "png").Key("avatar").
 		Message("JPEG or PNG file format is expected")
 
 	// Check resolution.
-	u.Validation.Required(conf.Height >= 150 && conf.Width >= 150).Key("avatar").
+	u.Validation.Required(img.Bounds().Dy() >= 150 && img.Bounds().Dx() >= 150).Key("avatar").
 		Message("Minimum allowed resolution is 150x150px")
 
 	// Handle errors.
