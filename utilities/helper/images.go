@@ -3,27 +3,31 @@ package helper
 import (
 	"fmt"
 	"github.com/disintegration/imaging"
+	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
 	"image"
 	"io/ioutil"
 	"runtime"
 	"strings"
 )
 
-func CreateAvatar(img image, fname string) (path string) {
+func ProcessAvatar(img image, width int, height int, dir, fname string) path string {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	
-	dir := fmt.Sprintf("%s/img/avatar", PUBLIC_PATH)
 	imgNum := GetImageNumber(dir, fname)
-
-	resized := imaging.Resize(img, 0, 80, imaging.Gaussian)
-	imaging.Save(resized, fmt.Sprintf("%s/img/%s/avatar/%s.png", dir, fname, imgNum)
+	resized := imaging.Resize(img, width, height, imaging.Gaussian)
+	target := fmt.Sprintf("%s/%s.png", dir, imgNum)
+	imaging.Save(resized, target)
 }
 
-func CreateMainPhoto(img image, fname string)  path string{
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
-	resized := imaging.Resize(img, 0, 80, imaging.Gaussian)
-	imaging.Save(resized, "public/img/avatar/noavatar_resized_gausian.png")	
+func CreateAvatar(img image, fname string) (small, big string) {
+	dir := fmt.Sprintf("%s/img/%s/avatar", PUBLIC_PATH, fname)
+	small = ProcessAvatar(img, 0, 80, dir, fname)
+	tracelog.TRACE(MAIN_GO_ROUTINE, "CreateAvatar", "[%s]", small)
+	
+	dir := fmt.Sprintf("%s/img/%s", PUBLIC_PATH, fname)
+	big = ProcessAvatar(img, 300, 0, dir, fname)
+	tracelog.TRACE(MAIN_GO_ROUTINE, "CreateAvatar", "[%s]", big)
+	return small, big
 }
 
 func GetImageNumber(dir, fname string) int{

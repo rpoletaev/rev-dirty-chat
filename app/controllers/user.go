@@ -104,6 +104,7 @@ func (u *User) AvatarUpload(account string, avatar []byte) revel.Result {
 		return u.RenderJson(u.Flash.Error)
 	}
 
+	small := helper.CreateAvatar(img, u.LoginName)
 	return u.RenderText("File processed")
 	// return u.RenderJson(FileInfo{
 	// 	ContentType: u.Params.Files["avatar"][0].Header.Get("Content-Type"),
