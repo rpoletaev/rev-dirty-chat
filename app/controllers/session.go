@@ -50,7 +50,10 @@ func (c *Session) Create(password, email string) revel.Result {
 		return c.Redirect((*Session).New)
 	}
 
+	//Set Session variables to valid user
 	c.Session["Authenticated"] = "true"
+	c.Session["Login"] = originalAccount.Login
+
 	if originalAccount.IsAdmin {
 		c.Session["IsAdmin"] = "true"
 		return c.Redirect((*App).Index)

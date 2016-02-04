@@ -6,6 +6,7 @@ import (
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
+	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"image"
 	// _ "image/jpeg"
 	// _ "image/png"
@@ -104,14 +105,13 @@ func (u *User) AvatarUpload(account string, avatar []byte) revel.Result {
 		return u.RenderJson(u.Flash.Error)
 	}
 
-	small := helper.CreateAvatar(img, u.LoginName)
-	return u.RenderText("File processed")
-	// return u.RenderJson(FileInfo{
-	// 	ContentType: u.Params.Files["avatar"][0].Header.Get("Content-Type"),
-	// 	Filename:    u.Params.Files["avatar"][0].Filename,
-	// 	RealFormat:  format,
-	// 	Resolution:  fmt.Sprintf("%dx%d", conf.Width, conf.Height),
-	// 	Size:        len(avatar),
-	// 	Status:      "Successfully uploaded",
-	// })
+	small, big := helper.CreateAvatar(img, u.Session["Login"], revel.BasePath)
+	imgData := struct {
+		Small string
+		Big   string
+	}{
+		small,
+		big,
+	}
+	return u.RenderJson(imgData)
 }

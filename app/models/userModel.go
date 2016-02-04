@@ -20,6 +20,7 @@ type User struct {
 	Region       string    `bson: "region"`
 	Status       string    `bson: "status"`
 	Avatar       string    `bson: "avatar"`
+	Portrait     string    `bson: "portrait"`
 	CreateDate   time.Time `bson: "createdt"`
 }
 
@@ -36,6 +37,7 @@ func CreateUser(account string) User {
 		Region:       "Краснодарский край",
 		Status:       "",
 		Avatar:       "/public/img/avatar/noavatar.png",
+		Portrait:     "/public/img/avatar/noavatar.png",
 		CreateDate:   time.Now(),
 	}
 }

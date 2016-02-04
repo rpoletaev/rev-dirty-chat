@@ -88,6 +88,10 @@ func (this *BaseController) IsAdmin() bool {
 	return isAdmin == "true"
 }
 
+// func (this *BaseController) PublicPath() string {
+// 	return revel.BasePath + "/public"
+// }
+
 // func AllowContinue() {
 // 	if !this.Session.Authenticated(){
 // 		switch selectthis.Controller.Request.URL.Path {
