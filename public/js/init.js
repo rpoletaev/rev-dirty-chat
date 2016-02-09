@@ -3,22 +3,6 @@ $('.datepicker').pickadate({
     selectYears: 15 // Creates a dropdown of 15 years to control year
   });
 
-// $('.drop-link').click(function(){
-// 	var $btn = $(this);
-// 	var strings = $(this).prev().attr('href').split("/");
-// 	console.log(strings);
-
-// 	var name = "/" + strings[1] + "/" + strings[2]
-// 	$.ajax({
-// 		url: name,
-// 		type: 'DELETE',
-// 		timeout: 30000,
-// 		success: function(result){
-// 			$btn.closest('li').remove();
-// 		}
-// 	});
-// });
-
 $('input.file-path').on('change', function(){
 	var file_data = $('input#avatar')[0].files[0];
 	var form_data = new FormData();
@@ -26,7 +10,7 @@ $('input.file-path').on('change', function(){
 	form_data.append('avatar', file_data);
 	form_data.append('csrf_token', token);
 	$.ajax({
-		url: 'avatarupload',
+		url: 'mainimageupload',
 		dataType: 'json',
 		cache: false,
 		contentType: false,
@@ -38,46 +22,108 @@ $('input.file-path').on('change', function(){
 		}
 	});
 });
-// try using croppie plugin https://github.com/Foliotek/Croppie
-$('input.file-path').on('change', function(){
-	var $uploadCrop;
 
-	var file_data = $('input#avatar')[0].files[0];
+$('.tool-item').each(function(){
+	var btn = $(this).find('a.btn-floating');
+	btn.hover(
+		function(){
+			btn.removeClass('transparent').addClass('grey');
+		},
 
-	function readFile(input) {
-		if (input.files && input.files[0]) {
-			var reader new FileReader();
+		function(){
+			btn.removeClass('grey').addClass('transparent');
+		}		
+	);
+});
 
-			reader.onload = function(e){
-				$uploadCrop.croppie('bind', {
-					url: e.target.result
-				});
+$(function(){
+	// using croppie plugin https://github.com/Foliotek/Croppie
+	$hid = $('#hidden-image').croppie({
+		viewport: {
+			width: 100,
+			height: 100
+		},
+		boundary: {
+			width: 300,
+			height: 300
+		}
+	});
 
-				
+	$('.modal-trigger').leanModal({
+		complete: function(){
+			$hid.croppie('result', {
+				type: 'canvas',
+				size: 'viewport'
+			}).then(function (resp) {
+				var form_data = new FormData();
+				var token = $("input[name='csrf_token']")[0].value;
+				form_data.append("avatar", dataURItoBlob(resp));
+				form_data.append('csrf_token', token);
+				$.ajax({
+						url: 'avatarupload',
+						dataType: 'json',
+						cache: false,
+						contentType: false,
+						processData: false,
+						data: form_data,
+						type: 'post',
+						success: function(data) {
+							alert("Аватар загружен");
+						}
+					});
+			});
+		}
+	});
+
+	$hid.croppie('bind', $('#portrait').attr('src'));
+
+	$('#image-edit').on('click', function () {
+					$hid.toggle();
+					$hid.croppie('bind');
+				});	
+	//End of Using Croppie
+
+	//DataBinding
+	$("input.bindable").each(function(){
+		$(this).on('change', function(){
+			var val='';
+			if($(this).attr("type")=='checkbox') {
+				val = $(this).prop("checked");
+			}else{
+				val = $(this).val();
 			}
-		}
-	}
-	var form_data = new FormData();
-	var token = $("input[name='csrf_token']")[0].value;
-	form_data.append('avatar', file_data);
-	form_data.append('csrf_token', token);
-	$.ajax({
-		url: 'avatarupload',
-		dataType: 'json',
-		cache: false,
-		contentType: false,
-		processData: false,
-		data: form_data,
-		type: 'post',
-		success: function(data) {
-			$('img#portrait').attr('src', data.Big);
-		}
+			var token = $("input[name='csrf_token']")[0].value;
+			var user = new FormData();
+			user.append("name", $(this).attr("name"));
+			user.append("val", val);
+			user.append("csrf_token", token);
+			$.ajax({
+				url: 'update',
+				dataType: 'json',
+				cache: false,
+				contentType: false,
+				processData: false,
+				data: user,
+				type: 'post',
+				success: function(data) {
+					if(data.error){
+						alert(error);
+					}
+				}
+			});
+		});
 	});
-});
 
-$('#crop-container').croppie({
-	viewport: {
-		width: 200, 
-		height: 200
-	}
-});
+})
+
+
+function dataURItoBlob(dataURI) {
+        var split = dataURI.split(','),
+            dataTYPE = split[0].match(/:(.*?);/)[1],
+            binary = atob(split[1]),
+            array = []
+        for(var i = 0; i < binary.length; i++) array.push(binary.charCodeAt(i))
+        return new Blob([new Uint8Array(array)], {
+            type: dataTYPE
+        })
+    }

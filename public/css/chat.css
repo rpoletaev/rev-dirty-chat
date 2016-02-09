@@ -1,36 +1,21 @@
-main {
-	height:  80vh;
-	background-color: orange;
-	padding: 3px;
+.image-container {
+	position: relative;
 }
 
-#user-menu{
-	background-color: blue;
-	height: 80vh;
-	overflow: auto;
-}
-
-#messages {
-	background-color: red;
-	height: 300px;
-	overflow: auto;
-}
-
-#chat {
-	background-color: white;
-}
-
-#rooms {
-	background-color: brown;
-	height: 50px;
-}
-#input-field{
-	background-color: green;
-	height: 50px;
-}
-
-#ads{
-	background-color: magenta;
-	height: 100px;
+.image-tools {
 	position: absolute;
+	bottom:20px;
+}
+
+.tool-item {
+	display: inline;
+	margin-left: 5px;
+}
+
+.file-path {
+	visibility: none;
+}
+
+#portrait {
+	width: 300px;
 }

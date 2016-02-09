@@ -53,6 +53,25 @@ func InsertUser(service *services.Service, user *models.User) (err error) {
 	return nil
 }
 
+func UpdateUser(service *services.Service, findCondition map[string]interface{}, changes map[string]interface{}) (err error) {
+	defer helper.CatchPanic(&err, service.UserId, "UpdateUser")
+
+	err = service.DBAction(COLLECTION,
+		func(collection *mgo.Collection) error {
+			findExpr := findCondition
+			change := bson.M{"$set": changes}
+			return collection.Update(findExpr, change)
+		})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "UpdateUser")
+		return err
+	}
+
+	tracelog.COMPLETED(service.UserId, "UpdateUser")
+	return nil
+}
+
 func GetSexes() []models.Sex {
 	sexes := []models.Sex{
 		models.Sex{

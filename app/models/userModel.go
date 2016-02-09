@@ -9,19 +9,19 @@ const (
 )
 
 type User struct {
-	AccountLogin string    `bson: "accountlogin"`
-	VisibleName  string    `bson: "visiblename"`
-	Sex          Sex       `bson: "sex"`
-	Position     Position  `bson: "position"`
-	Interest     string    `bson: "interest"`
-	DateOfBirth  time.Time `bson: "dateofbirth"`
-	ShowInSearch bool      `bson: "showinsearch"`
-	About        string    `bson: "about"`
-	Region       string    `bson: "region"`
-	Status       string    `bson: "status"`
-	Avatar       string    `bson: "avatar"`
-	Portrait     string    `bson: "portrait"`
-	CreateDate   time.Time `bson: "createdt"`
+	AccountLogin string    `bson:"accountlogin"`
+	VisibleName  string    `bson:"visiblename"`
+	Sex          Sex       `bson:"sex"`
+	Position     Position  `bson:"position"`
+	Interest     string    `bson:"interest"`
+	DateOfBirth  time.Time `bson:"dateofbirth"`
+	ShowInSearch bool      `bson:"showinsearch"`
+	About        string    `bson:"about"`
+	Region       string    `bson:"region"`
+	Status       string    `bson:"status"`
+	Avatar       string    `bson:"avatar"`
+	Portrait     string    `bson:"portrait"`
+	CreateDate   time.Time `bson:"createdt"`
 }
 
 func CreateUser(account string) User {

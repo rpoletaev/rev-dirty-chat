@@ -19,7 +19,7 @@ func ProcessAvatar(img image.Image, width int, height int, dir, fname string) (p
 	return path
 }
 
-func CreateAvatar(img image.Image, fname, base_path string) (small, big string) {
+func CreateMainImage(img image.Image, fname, base_path string) (small, big string) {
 	dir := fmt.Sprintf("%s/public/img/%s/avatar", base_path, fname)
 	small = ProcessAvatar(img, 0, 80, dir, fname)
 	small = strings.Replace(small, base_path, "", 1)
@@ -28,6 +28,13 @@ func CreateAvatar(img image.Image, fname, base_path string) (small, big string) 
 	big = ProcessAvatar(img, 300, 0, dir, fname)
 	big = strings.Replace(big, base_path, "", 1)
 	return small, big
+}
+
+func CreateAvatar(img image.Image, fname, base_path string) (path string) {
+	dir := fmt.Sprintf("%s/public/img/%s/avatar", base_path, fname)
+	path = ProcessAvatar(img, 0, 80, dir, fname)
+	path = strings.Replace(path, base_path, "", 1)
+	return path
 }
 
 func GetImageNumber(dir string) int {
