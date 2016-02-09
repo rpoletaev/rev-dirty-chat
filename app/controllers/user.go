@@ -10,7 +10,6 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"gopkg.in/mgo.v2/bson"
 	"image"
-	"reflect"
 	// _ "image/jpeg"
 	// _ "image/png"
 )
@@ -85,13 +84,14 @@ func (u *User) Update(account, name, val string) revel.Result {
 	}
 
 	user := models.User{}
-	uuserType := reflect.TypeOf(user)
-	field, found := userType.FieldByName("ShowInSearch")
-	if found {
-		return u.RenderJson(struct{ Error string }{field.Type.Name()})
-	} else {
-		return u.RenderJson(struct{ Error string }{"type unknown"})
+	changes, err := helper.GetChangesMap(user, name, val)
+	if err != nil {
+		return u.RenderJson(struct{ Error string }{err.Error()})
 	}
+	findexpr := bson.M{"accountlogin": account}
+
+	userService.UpdateUser(u.Services(), findexpr, changes)
+	return nil
 }
 
 func (u *User) MainImageUpload(account string, avatar []byte) revel.Result {

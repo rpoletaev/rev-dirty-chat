@@ -3,13 +3,14 @@ package helper
 import (
 	// "fmt"
 	// "github.com/rpoletaev/rev-dirty-chat/app/models"
+	"errors"
 	"gopkg.in/mgo.v2/bson"
 	"reflect"
 	"strconv"
 	"time"
 )
 
-func GetChangesExpression(targetStruct interface{}, changeName, changeValue string) map[string]interface{} {
+func GetChangesMap(targetStruct interface{}, changeName, changeValue string) (map[string]interface{}, error) {
 	structType := reflect.TypeOf(targetStruct)
 	field, found := structType.FieldByName(changeName)
 
@@ -21,34 +22,40 @@ func GetChangesExpression(targetStruct interface{}, changeName, changeValue stri
 
 		switch field.Type.Name() {
 		case "bool":
-			val, err := strconv.ParseBool(str)
+			val, err := strconv.ParseBool(changeValue)
 			if err != nil {
-				panic("Переданное значение не соответствует типу данных")
+				return nil, err
 			}
 
-			return bson.M{colName: val}
+			return bson.M{colName: val}, nil
 
-		case "int" || "int64":
-			val, err := strconv.ParseInt(s, 10, 64)
+		case "int", "int64":
+			val, err := strconv.ParseInt(changeValue, 10, 64)
 			if err != nil {
-				panic("Переданное значение не соответствует типу данных")
+				return nil, err
 			}
 
-			return bson.M{colName: val}
+			return bson.M{colName: val}, nil
 
-		case "float" || "float64":
-			val, err := strconv.ParseFloat(s, bitSize)
+		case "float", "float64":
+			val, err := strconv.ParseFloat(changeValue, 64)
 			if err != nil {
-				panic("Переданное значение не соответствует типу данных")
+				return nil, err
 			}
 
-			return bson.M{colName: val}
+			return bson.M{colName: val}, nil
 		case "time":
-			val, err := time.Parse("", val)
-		}
+			val, err := time.Parse("01 January, 2006", changeValue)
+			if err != nil {
+				return nil, err
+			}
 
+			return bson.M{colName: val}, nil
+		default:
+			return nil, errors.New("Неподдерживаемый тип данных")
+		}
 	} else {
-		panic("type unknown")
+		return nil, errors.New("Не удалось найти поле")
 	}
 }
 

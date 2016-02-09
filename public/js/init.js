@@ -106,8 +106,8 @@ $(function(){
 				data: user,
 				type: 'post',
 				success: function(data) {
-					if(data.error){
-						alert(error);
+					if(data.Error){
+						alert(data.Error);
 					}
 				}
 			});

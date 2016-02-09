@@ -65,7 +65,7 @@
 							<div class="switch">
 								<label>
 								 Нет
-							  <input class="bindable" name="ShowInSearch" type="checkbox" checked={{.user.ShowInSearch}}>
+							  <input class="bindable" name="ShowInSearch" type="checkbox" {{if .user.ShowInSearch}}checked{{end}}/>
 								  <span class="lever"></span>
 								  Да
 								</label>
