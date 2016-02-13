@@ -1,6 +1,13 @@
 $('.datepicker').pickadate({
-    selectMonths: true, // Creates a dropdown to control month
-    selectYears: 15 // Creates a dropdown of 15 years to control year
+    selectMonths: true, 
+    selectYears: 50, 
+    clear: 'Очистить',
+    close: 'Закрыть',
+    today: '',
+    weekdaysShort: ['Пн', 'Вт', 'Ср', 'Чет', 'Пт', 'Суб', 'Вс'],
+  	formatSubmit: 'dd-mm-yyyy',
+  	min: new Date(1940, 1, 1),
+  	closeOnSelect: true
   });
 
 $('input.file-path').on('change', function(){
@@ -36,7 +43,10 @@ $('.tool-item').each(function(){
 	);
 });
 
+//Initialization
 $(function(){
+	$(".button-collapse").sideNav();
+	$('.materialboxed').materialbox();
 	// using croppie plugin https://github.com/Foliotek/Croppie
 	$hid = $('#hidden-image').croppie({
 		viewport: {
@@ -84,7 +94,7 @@ $(function(){
 	//End of Using Croppie
 
 	//DataBinding
-	$("input.bindable").each(function(){
+	$("input.bindable").not(":text").each(function(){
 		$(this).on('change', function(){
 			var val='';
 			if($(this).attr("type")=='checkbox') {
@@ -92,6 +102,9 @@ $(function(){
 			}else{
 				val = $(this).val();
 			}
+
+			$(this).prop('disabled', true);
+
 			var token = $("input[name='csrf_token']")[0].value;
 			var user = new FormData();
 			user.append("name", $(this).attr("name"));
@@ -111,9 +124,88 @@ $(function(){
 					}
 				}
 			});
+
+			$(this).prop('disabled', false);
 		});
 	});
 
+	$('textarea.bindable').each(function(){
+		var btn = $('<a></a>').addClass('waves-effect waves-light btn-flat grey lighten-4').text("Сохранить");
+		var name = $(this).attr('name');
+		
+		btn.click(function(){
+			var area = $(this).parent().children('.bindable');
+			var val = area[0].value;
+			var token = $("input[name='csrf_token']")[0].value;
+			var user = new FormData();
+			user.append("name", name);
+			user.append("val", val);
+			user.append("csrf_token", token);
+			$.ajax({
+				url: 'update',
+				dataType: 'json',
+				cache: false,
+				contentType: false,
+				processData: false,
+				data: user,
+				type: 'post',
+				success: function(data) {
+					if(data.Error){
+						alert(data.Error);
+						Materialize.toast("OK!", 4000);
+					}
+				}
+			});
+			btn.remove();
+		});
+
+		$(this).focus(function(){
+			$(this).parent().addClass('hoverable');
+			$(this).parent().append(btn);
+		});
+		$(this).focusout(function(){
+			$(this).parent().removeClass('hoverable');
+		});
+	});
+
+	$(':text.bindable').each(function(){
+		var btn = $('<a></a>').addClass('waves-effect waves-light btn-flat grey lighten-4').text("Сохранить");
+		var name = $(this).attr('name');
+		
+		btn.click(function(){
+			var area = $(this).parent().children('.bindable');
+			var val = area[0].value;
+			var token = $("input[name='csrf_token']")[0].value;
+			var user = new FormData();
+			user.append("name", name);
+			user.append("val", val);
+			user.append("csrf_token", token);
+			$.ajax({
+				url: 'update',
+				dataType: 'json',
+				cache: false,
+				contentType: false,
+				processData: false,
+				data: user,
+				type: 'post',
+				success: function(data) {
+					if(data.Error){
+						alert(data.Error);
+						Materialize.toast("OK!", 4000);
+					}
+				}
+			});
+			btn.remove();
+		});
+
+		$(this).focus(function(){
+			$(this).parent().addClass('hoverable');
+			$(this).parent().append(btn);
+		});
+		$(this).focusout(function(){
+			$(this).parent().removeClass('hoverable');
+		});
+	});
 })
 
 

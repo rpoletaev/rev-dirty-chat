@@ -5,19 +5,18 @@
 
 	<main>
 		<div class="row">
-			<div class="col s12 l12">
-				<form action="#">
-					<div class="container">
-						<div class="col s12 l4">
-							<h5 id="login">{{.user.AccountLogin}}</h5>
+			<form action="#">
+				<div class="container">
+					<div class="col s12 m4 l4">
+							<input id="login" type="hidden" value="{{.user.AccountLogin}}"/>
 							<div class="image-container">
-								<img id="portrait" src="{{$user.Portrait}}">
+								<img id="portrait" class="responsive-img materialboxed" src="{{$user.Portrait}}">
 								<ul class="image-tools">
 									<li class="tool-item file-field input-field">
 										<a class="btn-floating waves-effect waves-light transparent">
-												<i class="material-icons">publish</i>
-												<input id="avatar" type="file" />
-												<input class="file-path" type="text">
+											<i class="material-icons">publish</i>
+											<input id="avatar" type="file" />
+											<input class="file-path" type="text">
 										</a>
 									</li>
 									<li class="tool-item">
@@ -38,43 +37,85 @@
 								</div>
 							</div>
 							<!--end Modal crop-->
-						</div>
-						<div class="col s12 l4">
-							<h5>Пол</h5>
-							{{range .sexes}}
-							<input class="bindable" name="Sex" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Sex.Name }}checked{{end}} />
-							<label for={{.Name}} >{{.Caption}}</label>
-							<br>
-							{{end}}
-						</div>
-						<div class="col s12 l4">
-							<h5>Позиционирование</h5>
-							{{range .positions}}
-							<input class="bindable" name="Position" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Position.Name}} checked {{end}} />
-							<label for={{.Name}} >{{.Caption}}</label>
-							<br>
-							{{end}}
-						</div>
-						<div class="divider col s12 l7"></div>
-						<div class="col s12 l6">
-							<h5>Дата рождения</h5>
-							<input name="DateOfBirth" type="date" class="datepicker bindable" value={{.user.PickerBirthDate}}>	<!-- {{.user.DateOfBirth}} -->
-						</div>
-						<div class="col s12 l6">
-							<h5>Показывать в результатах поиска для знакомств?</h5>
-							<div class="switch">
-								<label>
-								 Нет
-							  <input class="bindable" name="ShowInSearch" type="checkbox" {{if .user.ShowInSearch}}checked{{end}}/>
-								  <span class="lever"></span>
-								  Да
-								</label>
+					</div><!--Portrait-->
+					<div class="col s12 m8 l8">
+						<div class="row">
+							<div class="input-field col s12 m12 l12">
+								<input type="text" id="visname" name="VisibleName" class="bindable" value="{{.user.VisibleName}}"></input>
+								<label for="visname">Отображаемое имя</label>
 							</div>
-						</div>
+						</div><!-- VisibleName -->
+						<div class="row">
+								<div class="input-field col s12 m12 l12">
+									<input type="text" id="status" name="Status" class="bindable" value="{{.user.Status}}"></input>
+									<label for="status">Статус</label>
+								</div>
+						</div><!-- Status -->
+						<div class="row">
+							<div class="input-field col s12 m4 l4">
+								<h6>Пол</h6>
+								{{range .sexes}}
+								<p>
+									<input class="bindable" name="Sex" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Sex.Name }}checked{{end}} />
+									<label for={{.Name}} >{{.Caption}}</label>	
+								</p>
+								{{end}}
+							</div><!--Sex-->
+							<div class="input-field col s12 m4 l4">
+								<h6>Позиционирование</h6>
+								{{range .positions}}
+								<p>
+									<input class="bindable" name="Position" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Position.Name}} checked {{end}} />
+									<label for={{.Name}} >{{.Caption}}</label>
+								</p>
+								{{end}}
+							</div><!--Position-->
+							<div class="input-field col s12 m4 l4">
+								<h6>Ориентация</h6>
+								{{range .orientations}}
+								<p>
+									<input class="bindable" name="Orientation" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Orientation.Name}} checked {{end}} />
+									<label for={{.Name}} >{{.Caption}}</label>
+								</p>
+								{{end}}
+							</div><!--Position-->
+						</div><!--Radio-->
+						<div class="row">
+							<div class="input-field col s12 m6 l6">
+								<input id="dateOfBirth"name="DateOfBirth" type="date" class="datepicker bindable" value={{.user.PickerBirthDate}}>	
+								<label for="dateOfBirth">Дата рождения</label>
+							</div>
+						</div><!--DateOfBirth-->
+						<div class="row">
+							<div class="col s12 m12 l12">
+								<h6>Показывать в результатах поиска для знакомств?</h6>
+								<div class="switch">
+									<label>
+									 Нет
+										 <input id="showinsearch" class="bindable" name="ShowInSearch" type="checkbox" {{if .user.ShowInSearch}}checked{{end}}/>
+										  <span class="lever"></span>
+									  Да
+									</label>
+								</div>
+							</div>
+						</div><!--ShowInSearch-->
+						<div class="row">
+							<div class="input-field col s12 m12 l12">
+								<textarea id="about" name="About" class="bindable materialize-textarea">{{.user.About}}</textarea>
+								<label for="about">О себе</label>
+							</div>
+						</div><!-- About-->
+						<div class="row">
+							<div class="input-field col s12 m12 l12">
+								<textarea id="interest" name="Interest" class="bindable materialize-textarea">{{.user.Interest}}</textarea>
+								<label for="interest">Интересы</label>
+							</div>
+						</div><!-- Interest -->
 						<input type="hidden" name="csrf_token" value="{{.csrf_token}}" />
-					</div>
-				</form>
-			</div>
+					</div><!--Content-->	
+				</div>
+			</form>
+		</div>
 	</main>
 
 {{template "footer.html" .}}

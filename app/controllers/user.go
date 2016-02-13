@@ -41,18 +41,15 @@ func (u *User) Edit(account string) revel.Result {
 		return u.NotFound("Пользователь [%s] не найден", account)
 	}
 
-	positions := userService.GetPositions()
-	for i := 0; i < len(positions); i++ {
-		positions[i].Current = positions[i].Name == user.Position.Name
-	}
+	positions := models.GetPositions()
+	//positions[user.Position.Name].Current = true
 
-	sexes := userService.GetSexes()
-	for i := 0; i < len(sexes); i++ {
-		sexes[i].Current = sexes[i].Name == user.Position.Name
-	}
+	sexes := models.GetSexes()
+	//sexes[user.Sex.Name].Current = true
 
-	return u.Render(user, positions, sexes)
-	// return u.RenderJson(sexes)
+	orientations := models.GetOrientations()
+
+	return u.Render(user, positions, sexes, orientations)
 }
 
 func (u *User) Create(account string) revel.Result {

@@ -24,11 +24,13 @@
 			<div class="col s12 l9">
 				<h4>{{.user.VisibleName}}</h4>
 				<span class="indigo lighten-4">{{.user.Status}}</span>
-				<p>{{.user.Sex.Caption}}</p>
+				<!-- <p>{{.user.Sex.Caption}}</p> -->
 				<p>{{.user.Position.Caption}}</p>
-				<p>{{.user.DateOfBirth}}</p>
+				<p>{{.user.PickerBirthDate}}</p>
 				<hr>
+				<strong>Интересы</strong>
 				<div class="card-panel indigo lighten-4 hoverable">{{.user.Interest}}</div>
+				<strong>О Себе</strong>
 				<div class="card-panel indigo lighten-4 hoverable">{{.user.About}}</div>
 			</div>
 		</div>

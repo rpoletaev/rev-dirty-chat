@@ -16,6 +16,10 @@
 	visibility: none;
 }
 
-#portrait {
+/*#portrait {
 	width: 300px;
+}*/
+#messages {
+	height: 300px;
+	overflow-y: scroll; 
 }
