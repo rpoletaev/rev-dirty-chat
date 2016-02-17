@@ -38,7 +38,7 @@ func (u *User) Edit(account string) revel.Result {
 
 	user, err := userService.FindUser(u.Services(), account)
 	if err != nil {
-		return u.NotFound("Пользователь [%s] не найден", account)
+		return u.Redirect("/user/%s/create", account)
 	}
 
 	positions := models.GetPositions()
@@ -59,7 +59,7 @@ func (u *User) Create(account string) revel.Result {
 		return u.RenderError(err)
 	}
 
-	return u.Redirect("/user/%s", account)
+	return u.Redirect(u.Request.RequestURI)
 }
 
 func (u *User) Show(account string) revel.Result {

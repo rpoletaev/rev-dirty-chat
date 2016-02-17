@@ -22,7 +22,11 @@ func (c *Session) New() revel.Result {
 	if !c.Authenticated() {
 		return c.Render()
 	} else {
-		return c.NotFound("нужно пользака запилить") //c.Redirect("/account")
+		if login, ok := c.Session["Login"]; ok {
+			return c.Redirect(fmt.Sprintf("/user/%s/edit", login))
+		}
+
+		return c.Render()
 	}
 }
 
