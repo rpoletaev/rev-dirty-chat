@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
@@ -59,7 +59,7 @@ func (c *Session) Create(password, email string) revel.Result {
 		return c.Redirect((*App).Index)
 	}
 
-	return c.NotFound("Нужно запилить страницу для пользака")
+	return c.Redirect(fmt.Sprintf("/user/%s/edit", originalAccount.Login))
 }
 
 func (c *Session) Drop() revel.Result {
