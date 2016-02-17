@@ -72,7 +72,7 @@ func (u *Account) Create(password, confirm_password, email, login string) revel.
 		return u.RenderError(err)
 	}
 
-	return u.RenderText("email:[%s], password:[%s]", loginForm.Email, loginForm.HashedPassword)
+	return u.Redirect("/session/new")
 }
 
 // func (u *Account) CountAccountByEmail revel.Result {
