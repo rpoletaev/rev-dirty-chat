@@ -10,6 +10,7 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"gopkg.in/mgo.v2/bson"
 	"image"
+
 	// _ "image/jpeg"
 	// _ "image/png"
 )
@@ -59,6 +60,7 @@ func (u *User) Create(account string) revel.Result {
 		return u.RenderError(err)
 	}
 
+	helper.CreateUserFS(revel.BasePath, account)
 	return u.Redirect(u.Request.RequestURI)
 }
 
@@ -120,17 +122,17 @@ func (u *User) MainImageUpload(account string, avatar []byte) revel.Result {
 		return u.RenderJson(u.Flash.Error)
 	}
 
-	small, big := helper.CreateMainImage(img, account, revel.BasePath)
+	link := helper.ImgurImageUpload(avatar, "avatar")
 	imgData := struct {
 		Small string
 		Big   string
 	}{
-		small,
-		big,
+		link,
+		link,
 	}
 
 	findexpr := bson.M{"accountlogin": account}
-	changes := bson.M{"portrait": big, "avatar": small}
+	changes := bson.M{"portrait": link, "avatar": link}
 	userService.UpdateUser(u.Services(), findexpr, changes)
 	return u.RenderJson(imgData)
 }
@@ -164,7 +166,7 @@ func (u *User) AvatarUpload(account string, avatar []byte) revel.Result {
 		return u.RenderJson(u.Flash.Error)
 	}
 
-	processedAvatar := helper.CreateAvatar(img, account, revel.BasePath)
+	processedAvatar := helper.ImgurImageUpload(avatar, "avatar")
 	findexpr := bson.M{"accountlogin": account}
 	changes := bson.M{"avatar": processedAvatar}
 	imgData := struct {
