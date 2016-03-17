@@ -43,11 +43,7 @@ func (u *User) Edit(account string) revel.Result {
 	}
 
 	positions := models.GetPositions()
-	//positions[user.Position.Name].Current = true
-
 	sexes := models.GetSexes()
-	//sexes[user.Sex.Name].Current = true
-
 	orientations := models.GetOrientations()
 
 	return u.Render(user, positions, sexes, orientations)

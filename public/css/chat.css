@@ -20,6 +20,12 @@
 	width: 300px;
 }*/
 #messages {
-	height: 300px;
+	height: 400px;
 	overflow-y: scroll; 
+}
+
+.row.message-wrapper {
+	margin-bottom: 2px;
+	margin-top: 2px;
+	font-size: 12px;
 }

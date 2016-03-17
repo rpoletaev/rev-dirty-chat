@@ -1,0 +1,63 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+{{template "common_hat.html" .}}
+
+<main>
+	<div class="row">
+		<div id="user-menu" class="col s12 l3"></div><!--user-menu-->
+					  
+	 	<div class="col l9 s12" id="chat">
+	 		<!-- <div class="row">
+	 		 	<div id="rooms" class="col s12 l12">
+	 		 		<div class="container">
+	 		 			<div class="chip">
+	 		 				<img src="/public/img/losaped/avatar/1.png" alt="sntoaeu"/>
+	 		 				Роман Полетаев
+	 		 				<i class="material-icons">close</i>
+	 		 			</div>
+	 		 			<div class="chip">
+	 		 				<img src="/public/img/losaped/avatar/0.png" alt="sntoaeu"/>
+	 		 				Роман Полетаев
+	 		 				<i class="material-icons">close</i>
+	 		 			</div>
+	 		 			<div class="chip">
+	 		 				<img src="/public/img/losaped/avatar/5.png" alt="sntoaeu"/>
+	 		 				Роман Полетаев
+	 		 				<i class="material-icons">close</i>
+	 		 			</div>
+	 		 		</div>
+	 		 	</div> 
+	 		</div><!-rooms--> 
+			<div class="row">
+		  		<div id="messages" class="col s12 l12">
+		  			<div class="col s12 m8 offset-m2 l6 offset-l3">
+		  			    <div class="card-panel grey lighten-5 z-depth-1">
+		  			        <div class="row valign-wrapper">
+		  			            <div class="col s2">
+		  			  	          <img src="images/yuna.jpg" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
+		  			            </div>
+		  			            <div class="col s10">
+		  			              <span class="black-text">
+		  			                This is a square image. Add the "circle" class to it to make it appear circular.
+		  			              </span>
+		  			            </div>
+		  			        </div>
+		  			    </div>
+		  			</div>
+		  		</div> <!--messages-->
+			</div>
+	  		<div class="row">
+		 		<div class="input-field col l8 s12">
+		 			<i class="material-icons prefix">mode_edit</i>
+		 		    <textarea id="message" class="materialize-textarea"></textarea>
+		 		    <label for="message">Введите сообщение</label> 
+		 		</div>
+			</div><!--Message Area-->
+			<div class="row">
+				 <a id="send" class="btn waves-effect waves-light">Отправить</a>
+			</div><!--MessageControls-->
+		</div><!--chat-->
+  	</div>
+</main>
+
+{{template "chat_footer.html" .}}

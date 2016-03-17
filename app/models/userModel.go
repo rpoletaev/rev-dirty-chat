@@ -1,6 +1,7 @@
 package models
 
 import (
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -9,20 +10,21 @@ const (
 )
 
 type User struct {
-	AccountLogin string      `bson:"accountlogin"`
-	VisibleName  string      `bson:"visiblename"`
-	Sex          Sex         `bson:"sex"`
-	Position     Position    `bson:"position"`
-	Orientation  Orientation `bson:"orientation"`
-	Interest     string      `bson:"interest"`
-	DateOfBirth  time.Time   `bson:"dateofbirth"`
-	ShowInSearch bool        `bson:"showinsearch"`
-	About        string      `bson:"about"`
-	Region       string      `bson:"region"`
-	Status       string      `bson:"status"`
-	Avatar       string      `bson:"avatar"`
-	Portrait     string      `bson:"portrait"`
-	CreateDate   time.Time   `bson:"createdt"`
+	ID           bson.ObjectId `bson:"_id",omitempty`
+	AccountLogin string        `bson:"accountlogin"`
+	VisibleName  string        `bson:"visiblename"`
+	Sex          Sex           `bson:"sex"`
+	Position     Position      `bson:"position"`
+	Orientation  Orientation   `bson:"orientation"`
+	Interest     string        `bson:"interest"`
+	DateOfBirth  time.Time     `bson:"dateofbirth"`
+	ShowInSearch bool          `bson:"showinsearch"`
+	About        string        `bson:"about"`
+	Region       string        `bson:"region"`
+	Status       string        `bson:"status"`
+	Avatar       string        `bson:"avatar"`
+	Portrait     string        `bson:"portrait"`
+	CreateDate   time.Time     `bson:"createdt"`
 }
 
 func CreateUser(account string) User {

@@ -206,6 +206,13 @@ $(function(){
 			$(this).parent().removeClass('hoverable');
 		});
 	});
+
+	$('.room').click(function(){
+		var roomname = $(this).innerText;
+		console.log(roomname);
+
+		chat(roomname);
+	});
 })
 
 

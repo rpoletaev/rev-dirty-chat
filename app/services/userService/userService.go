@@ -29,7 +29,7 @@ func FindUser(service *services.Service, account string) (user *models.User, err
 
 	if err != nil {
 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindUser")
-		return user, err
+		return nil, err
 	}
 
 	tracelog.COMPLETED(service.UserId, "FindUser")

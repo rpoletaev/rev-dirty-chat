@@ -7,17 +7,18 @@
 */
 package models
 
-// import (
-// 	"gopkg.in/mgo.v2/bson"
-// )
+import (
+	"gopkg.in/mgo.v2/bson"
+)
 
 //** TYPES
 
 type (
 	Account struct {
-		Email          string `bson:"email"`
-		HashedPassword string `bson:"password"`
-		Login          string `bson:"login"`
-		IsAdmin        bool   `bson:"isadmin"`
+		ID             bson.ObjectId `bson:"_id",omitempty`
+		Email          string        `bson:"email"`
+		HashedPassword string        `bson:"password"`
+		Login          string        `bson:"login"`
+		IsAdmin        bool          `bson:"isadmin"`
 	}
 )
