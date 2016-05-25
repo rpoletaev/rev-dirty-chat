@@ -25,7 +25,9 @@
 						        			<span ng-bind="msg.Datestr"></span>
 						        		</div>
 						        	</div>
-						            <span class="black-text"ng-bind="msg.Text"></span>
+									<ul>
+										<li ng-repeat="txt in msg.Strings track by $index"><span class="black-text" ng-bind="txt"></span></li>
+									</ul>
 						        </div>
 						    </div>
 						</div>
@@ -35,7 +37,7 @@
 			<div id="input-message" class="row">
 		 		<div class="input-field col l10 s12">
 		 			<i class="material-icons prefix">mode_edit</i>
-		 		    <textarea id="message" class="materialize-textarea" ng-model="newMessage"></textarea>
+		 		    <textarea id="message" class="materialize-textarea" ng-model="newMessage" enter-submit="send()"></textarea>
 		 		    <label for="message">Введите сообщение</label> 
 		 		</div>
 		 		<div class="col l2 s12">

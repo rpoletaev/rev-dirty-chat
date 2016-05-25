@@ -14,24 +14,36 @@ angular.module('chat', ['ngWebsocket'])
 	$scope.newMessage = "";
 	$scope.msgCount = 0;
 
-	$scope.ws = $websocket.$new('ws://' + location.host + '/' + $location.path() + '/ws');
+	$scope.ws = $websocket.$new('ws://' + location.host + location.pathname + '/ws');
 	$scope.ws.$on('$message', function(data) {
-			console.log(data);
+			//console.log(data);
 			if (data.event == 'message') {
-				$scope.addMessage(data.data);
-				$scope.gotoBottom();		
+				$scope.addMessage(data.data);		
 			}
+			
+			setTimeout($scope.gotoBottom(), 0);
 		});
 
 	$scope.addMessage = function (message) {
 		message.Datestr = $filter('date')(new Date(message.Timestamp*1000), 'dd.MM.yyyy');
-		// if ($scope.messages.length() > 0 && $scope.messages[messages.length() - 1].User.OriginalID == message.User.OriginalID){
-		// 	$scope.messages[messages.length() - 1].Text + '\n' + message.Text;
-		// 	$scope.messages[messages.length() - 1].Datestr = message.Datestr;
-		// }else{
-			message.hash = $scope.msgCount;
-			$scope.messages.push(message);
-		// }
+		message.hash = $scope.msgCount;
+
+		 if ($scope.msgCount > 0){
+		 	var lastMessage = $scope.messages[$scope.msgCount - 1];
+
+		 	if (lastMessage.User.OriginalID == message.User.OriginalID)
+		 	{
+		 		$scope.messages[$scope.msgCount - 1].Strings.push(message.Text);
+		 		$scope.messages[$scope.msgCount - 1].Datestr = message.Datestr;
+		 	}else{
+				message.Strings = [message.Text];
+		 		$scope.messages.push(message);
+		 	}
+		 }else{
+			message.Strings = [message.Text];
+		 	$scope.messages.push(message);
+		 }
+		 
 		$scope.$apply();
 	};
 
@@ -47,17 +59,28 @@ angular.module('chat', ['ngWebsocket'])
 	};
 
 	$scope.gotoBottom = function() {
-    	$location.hash('bottom');
+    	$location.hash('anchor' + $scope.msgCount);
     	$anchorScroll();
     };
-}]);
+}])
+
+.directive('enterSubmit', function () {
+    return {
+      restrict: 'A',
+      link: function (scope, elem, attrs) {
+       
+        elem.bind('keydown', function(event) {
+          var code = event.keyCode || event.which;
+                  
+          if (code === 13) {
+            if (event.ctrlKey) {
+              event.preventDefault();
+              scope.$apply(attrs.enterSubmit);
+            }
+          }
+        });
+      }
+    }
+  });
+
 	
-	// .controller('Rooms', ['$scope', '$http', function($scope, $http){
-// 	$scope.rooms = [];
-// 	$http.get('/chat/myrooms').success(function(data){
-// 		console.log(data);
-// 		$scope.rooms = data;
-// 	});
-
-
-// }])
