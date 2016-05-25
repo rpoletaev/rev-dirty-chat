@@ -14,7 +14,7 @@ angular.module('chat', ['ngWebsocket'])
 	$scope.newMessage = "";
 	$scope.msgCount = 0;
 
-	$scope.ws = $websocket.$new('ws://' + location.host() + '/' + $location.path() + '/ws');
+	$scope.ws = $websocket.$new('ws://' + location.host + '/' + $location.path() + '/ws');
 	$scope.ws.$on('$message', function(data) {
 			console.log(data);
 			if (data.event == 'message') {
