@@ -5,18 +5,29 @@
 	    	<a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
 			
 			<ul id="nav-mobile" class="left hide-on-med-and-down">
-				<li><a href="#" data-method="post" class="tooltipped" data-position="right" data-delay="50" data-tooltip="Поиск людей"><i class="material-icons">search</i></a></li>
-				<li><a href="#" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Настройки поиска"><i class="material-icons">settings</i></a></li>
-				<li><a href="#" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Редактировать профиль"><i class="material-icons">person_pin</i></a></li>
-				<li><a href="#" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Подкаст"><i class="material-icons">radio</i></a></li>
-				<li><a href="{{url "Session.Drop"}}" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Выйти"><i class="material-icons">power_settings_new</i></a></li>
+				<li>
+					<a href="/user/me" data-method="get" class="tooltipped" data-position="right" data-delay="50" data-tooltip="Мой профиль"><i class="tiny material-icons">perm_identity</i></a></li>
+				<li>
+					<a href="/chat" data-method="get" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Чат"><i class="tiny material-icons">chat</i></a></li>
+				<li>
+					<a href="/communities" data-method="get" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Сообщества"><i class="tiny material-icons">supervisor_account</i></a></li>
+				<li>
+					<a href="/feedback" data-method="get" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Написать нам"><i class="tiny material-icons">hearing</i></a></li>
+				<li>
+					<a href="{{url "Session.Drop"}}" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Выйти"><i class="tiny material-icons">power_settings_new</i></a></li>
 			</ul>
 			<ul class="side-nav" id="mobile-demo">
-				<li><a href="sass.html">Поиск</a></li>
-			    <li><a href="sass.html">Sass</a></li>
-			    <li><a href="badges.html">Components</a></li>
-			    <li><a href="collapsible.html">Javascript</a></li>
-			    <li><a href="mobile.html" alt="Выйти">power_settings_new</a></li>
+				<li>
+					<a href="/user/me" data-method="get" class="tooltipped" data-position="right" data-delay="50">Мой профиль</a>
+				</li>
+				<li>
+					<a href="/chat" data-method="get" class="tooltipped" data-position="bottom" data-delay="50">Чат</a></li>
+				<li>
+					<a href="/communities" data-method="get" class="tooltipped" data-position="bottom" data-delay="50">Сообщества</a></li>
+				<li>
+					<a href="/feedback" data-method="get" class="tooltipped" data-position="bottom" data-delay="50"><i class="tiny material-icons">hearing</i>Написать нам</a></li>
+				<li>
+					<a href="{{url "Session.Drop"}}" data-method="post" class="tooltipped" data-position="bottom" data-delay="50"><i class="tiny material-icons">power_settings_new</i>Выйти</a></li>
 			</ul>
 		</div>
 	</nav>

@@ -8,6 +8,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
@@ -37,7 +38,7 @@ func FindAccountByEmail(service *services.Service, email string) (account *model
 
 	if err != nil {
 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindAccountByEmail")
-		return account, err
+		return nil, err
 	}
 
 	tracelog.COMPLETED(service.UserId, "FindAccountByEmail")
@@ -59,7 +60,7 @@ func InsertAccount(service *services.Service, account *models.Account) (err erro
 	defer helper.CatchPanic(&err, service.UserId, "InsertAccount")
 
 	SetAccountPassword(account)
-
+	fmt.Println(account)
 	err = service.DBAction("accounts",
 		func(collection *mgo.Collection) error {
 			return collection.Insert(account)

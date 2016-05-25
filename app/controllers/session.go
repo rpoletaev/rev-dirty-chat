@@ -6,6 +6,8 @@ import (
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/auth"
+	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
+	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 )
 
 type Session struct {
@@ -55,15 +57,32 @@ func (c *Session) Create(password, email string) revel.Result {
 	}
 
 	//Set Session variables to valid user
+	var user *models.User
+	user, err = userService.FindUser(c.Services(), originalAccount.Login)
+	if err != nil {
+		//TODO: нужно проверить вернется ли ошибка, если не нашли соответсвующего пользователя
+		c.RenderError(err)
+	}
+
+	if user == nil {
+		u := models.CreateUser(originalAccount.ID.Hex(), originalAccount.Login)
+		user = &u
+		userService.InsertUser(c.Services(), user)
+	}
+
+	user, err = userService.FindUser(c.Services(), originalAccount.Login)
+	helper.CreateUserFS(revel.BasePath, originalAccount.Login)
+
 	c.Session["Authenticated"] = "true"
 	c.Session["Login"] = originalAccount.Login
+	c.Session["CurrentUserID"] = user.ID.Hex()
 
 	if originalAccount.IsAdmin {
 		c.Session["IsAdmin"] = "true"
 		return c.Redirect((*App).Index)
 	}
 
-	return c.Redirect(fmt.Sprintf("/user/%s/edit", originalAccount.Login))
+	return c.Redirect(fmt.Sprintf("/user/me", originalAccount.Login))
 }
 
 func (c *Session) Drop() revel.Result {

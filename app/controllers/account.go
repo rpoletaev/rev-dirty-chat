@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
@@ -56,12 +57,12 @@ func (u *Account) Create(password, confirm_password, email, login string) revel.
 		Login:          strings.TrimSpace(login),
 	}
 
-	//MUST BE CHECK BY UNIQUE INDEX ON MONGODB LEVEL
-	// originalAccount, _ := auth.FindAccountByEmail(u.Services(), loginForm.Email)
-	// if originalAccount != nil {
-	// 	u.Flash.Error("Пользователь с таким Email:[%s] уже существует ", loginForm.Email)
-	// 	return u.Redirect((*Account).New)
-	// }
+	originalAccount, _ := auth.FindAccountByEmail(u.Services(), loginForm.Email)
+	if originalAccount != nil {
+		fmt.Println("orig acc: ", originalAccount)
+		u.Flash.Error("Пользователь с таким Email:[%s] уже существует ", loginForm.Email)
+		return u.Redirect((*Account).New)
+	}
 
 	if loginForm.Email == "losaped@gmail.com" {
 		loginForm.IsAdmin = true
@@ -72,6 +73,9 @@ func (u *Account) Create(password, confirm_password, email, login string) revel.
 		return u.RenderError(err)
 	}
 
+	// var createdAccount models.Account{}
+
+	// createdAccount = auth.FindAccountByEmail(u.Services(), email)
 	return u.Redirect("/session/new")
 }
 

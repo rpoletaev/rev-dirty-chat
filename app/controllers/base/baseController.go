@@ -71,31 +71,9 @@ func (this *BaseController) Services() *services.Service {
 }
 
 func (this *BaseController) Authenticated() bool {
-	if this.Session["Authenticated"] == "" {
-		return false
-	}
-
-	authenticated := this.Session["Authenticated"]
-	return authenticated == "true"
+	return this.Session["Authenticated"] == "true"
 }
 
 func (this *BaseController) IsAdmin() bool {
-	if this.Session["IsAdmin"] == "" {
-		return false
-	}
-
-	isAdmin := this.Session["IsAdmin"]
-	return isAdmin == "true"
+	return this.Session["IsAdmin"] == "true"
 }
-
-// func (this *BaseController) PublicPath() string {
-// 	return revel.BasePath + "/public"
-// }
-
-// func AllowContinue() {
-// 	if !this.Session.Authenticated(){
-// 		switch selectthis.Controller.Request.URL.Path {
-// 		case "/session/create", "/account"
-// 		}
-// 	}
-// }

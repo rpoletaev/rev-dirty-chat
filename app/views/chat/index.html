@@ -2,48 +2,19 @@
 {{template "header.html" .}}
 {{template "common_hat.html" .}}
 
-<main ng-app="chat">
+<main>
 	<div class="row">
-		<div class="collection col l3 s12 m4">
-			{{range .rooms}}
-			<a class="collection-item room" href="">{{.Name}}<span class="new badge">2</span></a> 
-			{{end}}
+		<div class="col l3 s12 m4 l3">
+			Тут будут тулы для создания чатов
 		</div>
-		<div class="chat col l6 s12 m8" ng-controller="ChatMessages">
-			<div id="messages">
-				<div id="anchor[[msg.hash]]" class="row" ng-repeat="msg in messages">
-					<div class="col s12 l12">
-				        <div class="row message-wrapper">
-				            <div class="col s1 l1">
-				     	       <img src="/public/img/losaped/avatar/1.png" width="30" class="circle"> <!-- notice the "circle" class -->
-				            </div>
-					        <div class="col s11 l11">
-					        	<div class="row message-wrapper">
-					        		<div class="col s12 l10">
-					        			<a href="/user/losaped" ng-bind="msg.User"></a>
-					        		</div>
-					        		<div class="col s0 l2">
-					        			<span ng-bind="msg.Datestr"></span>
-					        		</div>
-					        	</div>
-					            <span class="black-text"ng-bind="msg.Text"></span>
-					        </div>
-					    </div>
-					</div>
-				</div>
-				<div id="bottom"></div>
-			</div>
-			<div class="row">
-		 		<div class="input-field col l8 s12">
-		 			<i class="material-icons prefix">mode_edit</i>
-		 		    <textarea id="message" class="materialize-textarea" ng-model="newMessage"></textarea>
-		 		    <label for="message">Введите сообщение</label> 
-		 		</div>
-		 		<div class="col l4 s12">
-		 			<a id="send" class="btn waves-effect waves-light" ng-click="send()">Отправить</a>
-		 		</div>
-			</div>
-		</div>	
+		<div class="collection col l6 s12 m8">
+		{{range $key, $value := .rooms}}
+			<a class="collection-item room" href="/chat/{{$key.Hex}}">{{$value}}<span class="new badge">2</span></a> 
+		{{end}}
+		</div>
+		<div class="col l3">
+			Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem eum sequi totam, blanditiis architecto veniam nostrum nisi adipisci dolorem neque placeat ex praesentium perferendis, accusamus libero esse qui, magni optio.
+		</div>
 	</div>
 </main>
-{{template "chat_footer.html" .}}
+{{template "footer.html" .}}

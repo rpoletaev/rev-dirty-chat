@@ -11,17 +11,21 @@ GET		/account/new  		Account.New
 POST	/account/create 	Account.Create
 
 
-GET 	/user/:account/create  	User.Create
-GET 	/user/:account/edit		User.Edit
+#GET 	/user/:account/create  	User.Create
+GET 	/user/edit				User.Edit
 GET 	/user/:account			User.Show
-POST 	/user/:account/avatarupload 	User.AvatarUpload
-POST 	/user/:account/mainimageupload 	User.MainImageUpload
-POST	/user/:account/update	User.Update
+POST 	/user/avatarupload 		User.AvatarUpload
+POST 	/user/mainimageupload 	User.MainImageUpload
+POST	/user/update			User.Update
 
-GET		/chat				Chat.Index
-POST 	/chat  				Chat.Create
-WS		/chat/socket	Chat.RoomSocket
-GET     /favicon.ico        404
+GET		/chat					Chat.Index
+#POST 	/chat  					Chat.Create
+WS		/chat/:id/ws			Chat.RoomSocket
+GET		/chat/:id 				Chat.Room
+
+#GET	/regions/load			Region.Load
+#GET 	/regions/create_rooms 	Region.CreateRooms
+GET     /favicon.ico        	404
 
 GET     /public/*filepath   Static.Serve("public")
 

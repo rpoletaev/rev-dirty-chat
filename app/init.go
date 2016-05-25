@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/cbonello/revel-csrf"
 	"github.com/revel/revel"
+	"github.com/rpoletaev/rev-dirty-chat/app/services/chatService"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
@@ -50,4 +51,6 @@ func initApp() {
 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "initApp")
 		os.Exit(1)
 	}
+
+	chatService.Startup()
 }

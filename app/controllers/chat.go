@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
-	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/chatService"
+	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
 	"golang.org/x/net/websocket"
-	// "github.com/rpoletaev/rev-dirty-chat/app/services/userService"
-	//"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type Chat struct {
@@ -21,67 +22,74 @@ func init() {
 	revel.InterceptMethod((*Chat).Panic, revel.PANIC)
 }
 
-func (c *Chat) Index(user models.User) revel.Result {
-	rooms, err := chatService.FindRoomsByUser(c.Services(), user.ID.String())
-	if err != nil {
-		return c.RenderError(err)
+func (c *Chat) Index() revel.Result {
+	if !c.Authenticated() {
+		return c.Redirect("/session/new")
+	}
+	rooms := map[bson.ObjectId]string{}
+
+	//Получим Global
+	globalId := "56dde7c1e4b0c05f88d03ffe"
+	rooms[bson.ObjectIdHex(globalId)] = "Общий чат"
+
+	user, err := userService.FindUserByID(c.Services(), c.Session["CurrentUserID"])
+	if err == nil && user != nil {
+		region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
+		rooms[region.ID] = region.Name
 	}
 
-	var global *models.Room
-	global, err = chatService.FindRoomByName(c.Services(), "global")
-	if err != nil {
-		return c.RenderError(err)
+	for _, v := range user.Rooms {
+		rooms[v.ID] = v.Name
 	}
 
-	rooms = append(rooms, global)
 	return c.Render(rooms)
 }
 
-func (c *Chat) Create(from string, to []string) revel.Result {
-	name := "Беседа"
-	users := []string{from}
-	if to != nil && len(to) == 1 {
-		name = to[0]
+func (c *Chat) CreatePrivateRoom(withUserId string) revel.Result {
+	fromUser := c.Session["CurrentUserID"]
+	header, err := userService.GetPrivateRoomIDWithUser(c.Services(), fromUser, withUserId)
+	if err != nil {
+		c.RenderError(err)
 	}
 
-	for _, user := range to {
-		users = append(users, user)
+	return c.Redirect(fmt.Sprintf("/chat/%s", header.ID))
+}
+
+func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
+	fmt.Println(id)
+	room, err := chatService.GetRoom(c.Services(), id)
+	if err != nil {
+		c.RenderText(err.Error())
 	}
 
-	room := models.Room{Name: name, Users: users}
-	chatService.InsertRoom(c.Services(), &room)
-	return c.Render(room)
-}
+	for !room.IsRuning {
+		time.Sleep(time.Millisecond * 500)
+	}
 
-func (c *Chat) Connect() revel.Result {
-	//m.HandleRequest(c.Response.Out, c.Request.Request)
-	return c.RenderText("from Connect")
-}
-
-func (c *Chat) RoomSocket(user string, ws *websocket.Conn) revel.Result {
+	fmt.Println(room.IsRuning)
 	// Join the room.
-	subscription := models.Subscribe()
-	defer subscription.Cancel()
+	subscription := room.Subscribe()
+	fmt.Println("We are Subscribed")
+	defer room.Unsubscribe(subscription)
 
-	models.Join(user)
-	defer models.Leave(user)
+	room.Join(c.Services(), c.Session["CurrentUserID"])
+	fmt.Println("We are Joined")
+	defer room.Leave(c.Services(), c.Session["CurrentUserID"])
 
 	// Send down the archive.
 	for _, event := range subscription.Archive {
 		if websocket.JSON.Send(ws, &event) != nil {
-			fmt.Println("Хуй че!!!")
 			return nil
 		}
 	}
 
-	// In order to select between websocket messages and subscription events, we
-	// need to stuff websocket events into a channel.
+	// // In order to select between websocket messages and subscription events, we
+	// // need to stuff websocket events into a channel.
 	newMessages := make(chan string)
 	go func() {
 		var msg string
 		for {
 			err := websocket.Message.Receive(ws, &msg)
-			//fmt.Println(msg)
 			if err != nil {
 				close(newMessages)
 				return
@@ -90,7 +98,7 @@ func (c *Chat) RoomSocket(user string, ws *websocket.Conn) revel.Result {
 		}
 	}()
 
-	// Now listen for new events from either the websocket or the chatroom.
+	// // Now listen for new events from either the websocket or the chatroom.
 	for {
 		select {
 		case event := <-subscription.New:
@@ -104,9 +112,30 @@ func (c *Chat) RoomSocket(user string, ws *websocket.Conn) revel.Result {
 				return nil
 			}
 
-			// Otherwise, say something.
-			models.Say(user, msg)
+			fmt.Println(msg)
+			room.Say(c.Services(), c.Session["CurrentUserID"], msg)
 		}
 	}
 	return nil
+}
+
+func (c *Chat) ShowPrivateRoom(userTo string) revel.Result {
+	//Get room with userTo if room is missing then create it
+	userFrom := c.Session["CurrentUserID"]
+	header, err := userService.GetPrivateRoomIDWithUser(c.Services(), userFrom, userTo)
+	if err != nil {
+		c.Flash.Error("Не удалось создать комнату с пользователем %s", userTo)
+		return nil
+	}
+
+	return c.Redirect(fmt.Sprintf("/chat/%s", header.ID.String()))
+}
+
+func (c *Chat) Room(id string) revel.Result {
+	room, err := chatService.GetRoom(c.Services(), id)
+	if err != nil {
+		return c.RenderError(err)
+	}
+
+	return c.Render(room)
 }

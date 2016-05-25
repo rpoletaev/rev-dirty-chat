@@ -11,11 +11,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//** TYPES
-
 type (
 	Account struct {
-		ID             bson.ObjectId `bson:"_id",omitempty`
+		ID             bson.ObjectId `bson:"_id,omitempty"`
 		Email          string        `bson:"email"`
 		HashedPassword string        `bson:"password"`
 		Login          string        `bson:"login"`

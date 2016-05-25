@@ -1,32 +1,37 @@
 angular.module('chat', ['ngWebsocket'])
-.config(function($interpolateProvider) {
+.config(function($interpolateProvider, $locationProvider) {
     $interpolateProvider.startSymbol('[[');
     $interpolateProvider.endSymbol(']]');
+    $locationProvider.html5Mode({enabled: true, requireBase: false}).hashPrefix('!');
   })
 
 .run(['$anchorScroll', function($anchorScroll){
 	$anchorScroll.yOffset = 50;
 }])
 
-.controller('ChatMessages', ['$scope', '$websocket', '$filter', '$anchorScroll', '$location', function($scope, $websocket, $filter, $anchorScroll, $location){
-	var ws = $websocket.$new('ws://localhost:9000/chat/socket?user=roma');
-	ws.$on('$open', function () {
-		console.log("connection established");
-	});
-
-	ws.$on('$close', function () {
-    	console.log('Noooooooooou, I want to have more fun with ngWebsocket, damn it!');
-    });
-
+.controller('ChatMessages', ['$scope', '$filter', '$anchorScroll', '$location', '$http', '$websocket', function($scope, $filter, $anchorScroll, $location, $http, $websocket){
 	$scope.messages = [];
 	$scope.newMessage = "";
 	$scope.msgCount = 0;
 
+	$scope.ws = $websocket.$new('ws://localhost:9000' + $location.path() + '/ws');
+	$scope.ws.$on('$message', function(data) {
+			console.log(data);
+			if (data.event == 'message') {
+				$scope.addMessage(data.data);
+				$scope.gotoBottom();		
+			}
+		});
+
 	$scope.addMessage = function (message) {
 		message.Datestr = $filter('date')(new Date(message.Timestamp*1000), 'dd.MM.yyyy');
-		message.hash = $scope.msgCount;
-		$scope.messages.push(message);
-		console.log("last hash" + message.hash);
+		// if ($scope.messages.length() > 0 && $scope.messages[messages.length() - 1].User.OriginalID == message.User.OriginalID){
+		// 	$scope.messages[messages.length() - 1].Text + '\n' + message.Text;
+		// 	$scope.messages[messages.length() - 1].Datestr = message.Datestr;
+		// }else{
+			message.hash = $scope.msgCount;
+			$scope.messages.push(message);
+		// }
 		$scope.$apply();
 	};
 
@@ -36,21 +41,23 @@ angular.module('chat', ['ngWebsocket'])
 
 	$scope.send = function() {
 		if ($scope.newMessage != "") {
-			ws.$emit('message', $scope.newMessage);
+			$scope.ws.$emit('message', $scope.newMessage);
 			$scope.newMessage = "";
 		}
 	};
 
-	ws.$on('$message', function(event) {
-		if (event.event == 'message') {
-			$scope.addMessage(event.data);
-			$scope.gotoBottom();
-		}
-	});		
-
-    $scope.gotoBottom = function() {
+	$scope.gotoBottom = function() {
     	$location.hash('bottom');
     	$anchorScroll();
-    }
+    };
 }]);
 	
+	// .controller('Rooms', ['$scope', '$http', function($scope, $http){
+// 	$scope.rooms = [];
+// 	$http.get('/chat/myrooms').success(function(data){
+// 		console.log(data);
+// 		$scope.rooms = data;
+// 	});
+
+
+// }])

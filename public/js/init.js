@@ -47,24 +47,27 @@ $('.tool-item').each(function(){
 $(function(){
 	$(".button-collapse").sideNav();
 	$('.materialboxed').materialbox();
-	// using croppie plugin https://github.com/Foliotek/Croppie
-	$hid = $('#hidden-image').croppie({
-		viewport: {
-			width: 100,
-			height: 100
-		},
-		boundary: {
-			width: 300,
-			height: 300
-		}
+	$('ul.tabs').tabs();
+	$('select').material_select();
+	
+	//using croppie plugin https://github.com/Foliotek/Croppie
+	var $hid = $('#hidden-image');
+	$hid.croppie({
+		viewport: {width: 100, height: 100},
+		boundary: {width: 300, height: 300}
 	});
+	$hid.croppie('bind', $('#portrait').attr('src'));
 
 	$('.modal-trigger').leanModal({
-		complete: function(){
-			$hid.croppie('result', {
-				type: 'canvas',
-				size: 'viewport'
-			}).then(function (resp) {
+		ready: function(){
+			$hid.toggle();
+			$hid.croppie('bind');
+		}
+	});
+	
+	$('#crop-avatar').on('click', function(){
+			$hid.croppie('result', 'canvas').then(function (resp) {
+				console.log(resp);
 				var form_data = new FormData();
 				var token = $("input[name='csrf_token']")[0].value;
 				form_data.append("avatar", dataURItoBlob(resp));
@@ -77,21 +80,13 @@ $(function(){
 						processData: false,
 						data: form_data,
 						type: 'post',
-						success: function(data) {
-							alert("Аватар загружен");
-						}
+					}).done(function(){
+						alert("Аватар загркжен");
+					}).always(function(){
+						$('#crop-modal').closeModal();
 					});
 			});
-		}
-	});
-
-	$hid.croppie('bind', $('#portrait').attr('src'));
-
-	$('#image-edit').on('click', function () {
-					$hid.toggle();
-					$hid.croppie('bind');
-				});	
-	//End of Using Croppie
+		});
 
 	//DataBinding
 	$("input.bindable").not(":text").each(function(){
@@ -103,6 +98,37 @@ $(function(){
 				val = $(this).val();
 			}
 
+			$(this).prop('disabled', true);
+
+			var token = $("input[name='csrf_token']")[0].value;
+			var user = new FormData();
+			user.append("name", $(this).attr("name"));
+			user.append("val", val);
+			user.append("csrf_token", token);
+			$.ajax({
+				url: 'update',
+				dataType: 'json',
+				cache: false,
+				contentType: false,
+				processData: false,
+				data: user,
+				type: 'post',
+				success: function(data) {
+					if(data.Error){
+						alert(data.Error);
+					}
+				}
+			});
+
+			$(this).prop('disabled', false);
+		});
+	});
+
+	$('select.bindable').each(function(){
+		var val='';
+
+		$(this).on('change', function(){
+			val = $(this).val();
 			$(this).prop('disabled', true);
 
 			var token = $("input[name='csrf_token']")[0].value;
@@ -206,23 +232,16 @@ $(function(){
 			$(this).parent().removeClass('hoverable');
 		});
 	});
-
-	$('.room').click(function(){
-		var roomname = $(this).innerText;
-		console.log(roomname);
-
-		chat(roomname);
-	});
-})
+});
 
 
 function dataURItoBlob(dataURI) {
         var split = dataURI.split(','),
             dataTYPE = split[0].match(/:(.*?);/)[1],
             binary = atob(split[1]),
-            array = []
-        for(var i = 0; i < binary.length; i++) array.push(binary.charCodeAt(i))
+            array = [];
+        for(var i = 0; i < binary.length; i++) array.push(binary.charCodeAt(i));
         return new Blob([new Uint8Array(array)], {
             type: dataTYPE
-        })
-    }
+        });
+    };

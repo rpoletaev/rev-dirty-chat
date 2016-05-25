@@ -1,63 +1,51 @@
-{{set . "title" "Home"}}
+{{set . "title" "Чат"}}
 {{template "header.html" .}}
 {{template "common_hat.html" .}}
 
-<main>
-	<div class="row">
-		<div id="user-menu" class="col s12 l3"></div><!--user-menu-->
-					  
-	 	<div class="col l9 s12" id="chat">
-	 		<!-- <div class="row">
-	 		 	<div id="rooms" class="col s12 l12">
-	 		 		<div class="container">
-	 		 			<div class="chip">
-	 		 				<img src="/public/img/losaped/avatar/1.png" alt="sntoaeu"/>
-	 		 				Роман Полетаев
-	 		 				<i class="material-icons">close</i>
-	 		 			</div>
-	 		 			<div class="chip">
-	 		 				<img src="/public/img/losaped/avatar/0.png" alt="sntoaeu"/>
-	 		 				Роман Полетаев
-	 		 				<i class="material-icons">close</i>
-	 		 			</div>
-	 		 			<div class="chip">
-	 		 				<img src="/public/img/losaped/avatar/5.png" alt="sntoaeu"/>
-	 		 				Роман Полетаев
-	 		 				<i class="material-icons">close</i>
-	 		 			</div>
-	 		 		</div>
-	 		 	</div> 
-	 		</div><!-rooms--> 
-			<div class="row">
-		  		<div id="messages" class="col s12 l12">
-		  			<div class="col s12 m8 offset-m2 l6 offset-l3">
-		  			    <div class="card-panel grey lighten-5 z-depth-1">
-		  			        <div class="row valign-wrapper">
-		  			            <div class="col s2">
-		  			  	          <img src="images/yuna.jpg" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-		  			            </div>
-		  			            <div class="col s10">
-		  			              <span class="black-text">
-		  			                This is a square image. Add the "circle" class to it to make it appear circular.
-		  			              </span>
-		  			            </div>
-		  			        </div>
-		  			    </div>
-		  			</div>
-		  		</div> <!--messages-->
+<main ng-app="chat">
+	<div class="row" ng-controller="ChatMessages">
+		<div class="col l3 s12 m4">
+			<div class="card-panel blue"><span class="white-text">{{.room.Name}}</span></div>
+		</div>
+		<div class="chat col l6 s12 m8">
+			<div id="messages" class="row">
+				<div class="col l12 s2">
+					<div id="anchor[[msg.hash]]" class="row" ng-repeat="msg in messages">
+						<div class="col s12 l12">
+					        <div class="row message-wrapper">
+					            <div class="col s1 l1">
+					     	       <img src="[[msg.User.Avatar]]" class="circle" width="40" /> <!-- class="circle" notice the "circle" class -->
+					            </div>
+						        <div class="col s11 l11">
+						        	<div class="row message-wrapper">
+						        		<div class="col s12 l10">
+						        			<a ng-href="[[msg.User.Url]]" ng-bind="msg.User.Name"></a>
+						        		</div>
+						        		<div class="col s0 l2">
+						        			<span ng-bind="msg.Datestr"></span>
+						        		</div>
+						        	</div>
+						            <span class="black-text"ng-bind="msg.Text"></span>
+						        </div>
+						    </div>
+						</div>
+					</div>
+				</div>
 			</div>
-	  		<div class="row">
-		 		<div class="input-field col l8 s12">
+			<div id="input-message" class="row">
+		 		<div class="input-field col l10 s12">
 		 			<i class="material-icons prefix">mode_edit</i>
-		 		    <textarea id="message" class="materialize-textarea"></textarea>
+		 		    <textarea id="message" class="materialize-textarea" ng-model="newMessage"></textarea>
 		 		    <label for="message">Введите сообщение</label> 
 		 		</div>
-			</div><!--Message Area-->
-			<div class="row">
-				 <a id="send" class="btn waves-effect waves-light">Отправить</a>
-			</div><!--MessageControls-->
-		</div><!--chat-->
-  	</div>
+		 		<div class="col l2 s12">
+		 			<a id="send" class="btn waves-effect waves-light" ng-click="send()">Отправить</a>
+		 		</div>
+			</div>
+		</div>
+		<div class="col l3 s12">
+			<div class="card-panel blue">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique eum praesentium quos atque quibusdam porro provident minus cumque optio reprehenderit? Aliquid ipsum consectetur at velit odio earum qui corporis et.</div>
+		</div>
+	</div>
 </main>
-
 {{template "chat_footer.html" .}}

@@ -3,35 +3,82 @@
 {{template "common_hat.html" .}}
 
 	<main>
-		<div class="row">
-			<div class="col S12 l3">
+		<div class="row container">
+			<div class="col s12 l3">
 				<div class="row">
 					<div class="col s12 l12">
-						<img id="portrait" src="{{.user.Portrait}}">
+						<img id="portrait" class="responsive-img materialboxed" src="{{.user.Portrait}}">
 					</div>
 				</div>
 				<div class="row">
 					<div class="col l6 s12">
-						<a class="btn-floating btn-large waves-effect waves-light red" href="/user/{{.user.AccountLogin}}/edit">
-							<i class="large material-icons">mode_edit</i>
+						{{if .owner}}
+						<a class="btn-floating btn-small waves-effect waves-light red" href="/user/edit">
+							<i class="small material-icons">mode_edit</i>
 						</a>
+						{{else}}
+						<a id="send_user_message" class="btn-floating btn-small waves-effect waves-light red modal-trigger" href="#message_modal">
+							<i class="small material-icons">chat</i>
+						</a>
+						<div id="message_modal" class="modal">
+							<form name="send_message" method="POST" action="/chat/create" />
+								<div class="modal-content">
+									<input type="text" name="message_text"/>
+									<input type="hidden" name="user" value="{{.user.ID.Hex}}"/>
+									<input type="hidden" name="csrf_token" value="{{.csrf_token}}"/>
+								</div>
+								<div class="modal_footer"><input class="btn" type="submit" value="Отправить"/></div>
+							</form>
+						</div>
+						{{end}}
 					</div>
 					<!-- <div class="col l6 s12">
 						<a href="#">Еще какая то ссылка</a>
 					</div> -->
 				</div>
 			</div>
-			<div class="col s12 l9">
+			<div class="col s12 l6">
 				<h4>{{.user.VisibleName}}</h4>
 				<span class="indigo lighten-4">{{.user.Status}}</span>
 				<!-- <p>{{.user.Sex.Caption}}</p> -->
 				<p>{{.user.Position.Caption}}</p>
 				<p>{{.user.PickerBirthDate}}</p>
 				<hr>
-				<strong>Интересы</strong>
-				<div class="card-panel indigo lighten-4 hoverable">{{.user.Interest}}</div>
-				<strong>О Себе</strong>
-				<div class="card-panel indigo lighten-4 hoverable">{{.user.About}}</div>
+				<h5>Интересы</h5>
+				<blockquote>
+					<p>{{.user.Interest}}</p>
+				</blockquote>
+				<h5>О Себе</h5>
+				<blockquote>
+					{{.user.About}}
+				</blockquote>
+				<!-- <div id="user-region"></div> -->
+			</div>
+			<div class="col s12 l3">
+			Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate repellendus perspiciatis consectetur quasi quos temporibus, excepturi voluptas libero esse, facere laboriosam natus dolores similique neque culpa saepe illo. Quas, eius.
+			</div> <!--Объявления-->
+		</div>
+		<div class="row container">
+			<div class="col s12">
+				<ul class="tabs">
+					<li class="tab col s3"><a class="active" href="#wall">Стена</a></li>
+					<li class="tab col s3"><a href="#articles">Статьи</a></li>
+					<li class="tab col s3"><a href="#comments">Коментарии</a></li>
+				</ul>
+			</div>
+			<div id="wall" class="col s12">
+			Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
+			Aperiam molestiae explicabo sit id dolores beatae consequuntur. Asperiores reiciendis, unde cum repudiandae nemo blanditiis dolores beatae nesciunt necessitatibus eius perspiciatis labore!
+			</div>
+			<div id="articles" class="col s12">
+				<ul>
+					<li>Статья 1</li>
+					<li>Статья 2</li>
+					<li>Статья 3</li>
+				</ul>
+			</div>
+			<div id="comments" class="col s12">
+			Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam molestiae explicabo sit id dolores beatae consequuntur. Asperiores reiciendis, unde cum repudiandae nemo blanditiis dolores beatae nesciunt necessitatibus eius perspiciatis labore!
 			</div>
 		</div>
 	</main>

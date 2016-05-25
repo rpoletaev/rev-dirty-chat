@@ -44,10 +44,10 @@ type DataObject struct {
 	Link           string
 }
 
-func ImgurImageUpload(img []byte, description string) string {
+func ImgurImageUpload(img []byte, description string) (string, error) {
 	url := "https://api.imgur.com/3/image"
 	imgString := base64.StdEncoding.EncodeToString(img)
-	fmt.Println(imgString)
+
 	reqJson := []byte(fmt.Sprintf(`{"image":"%s", "description":"%s"}`, imgString, description))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqJson))
 	req.Header.Set("Authorization", fmt.Sprintf("Client-ID %s", "4c2bcf743596439"))
@@ -63,10 +63,9 @@ func ImgurImageUpload(img []byte, description string) string {
 	body, _ := ioutil.ReadAll(resp.Body)
 	var response ImgurResponse
 	json.Unmarshal(body, &response)
-
-	if response.Success {
-		return fmt.Sprintf("http://i.imgur.com/%s.png", response.Data.Id)
+	if response.Data.Id != "" {
+		return fmt.Sprintf("http://i.imgur.com/%s.png", response.Data.Id), nil
 	} else {
-		panic(fmt.Sprintf("unable to load image %s", response))
+		return "", fmt.Errorf("Не удалось загрузить изображение")
 	}
 }

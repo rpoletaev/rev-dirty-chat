@@ -1,8 +1,10 @@
 package models
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	//"github.com/rpoletaev/rev-dirty-chat/app/services/chatService"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -10,7 +12,8 @@ const (
 )
 
 type User struct {
-	ID           bson.ObjectId `bson:"_id",omitempty`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	AccountID    string        `bson:"account_id"`
 	AccountLogin string        `bson:"accountlogin"`
 	VisibleName  string        `bson:"visiblename"`
 	Sex          Sex           `bson:"sex"`
@@ -25,11 +28,13 @@ type User struct {
 	Avatar       string        `bson:"avatar"`
 	Portrait     string        `bson:"portrait"`
 	CreateDate   time.Time     `bson:"createdt"`
+	Rooms        []RoomHeader  `bson:"rooms"`
 }
 
-func CreateUser(account string) User {
+func CreateUser(accountId, account string) User {
 	return User{
 		AccountLogin: account,
+		AccountID:    accountId,
 		VisibleName:  account,
 		Sex:          Sex{Name: "man", Caption: "Мужчина"},
 		Position:     Position{Name: "top", Caption: "Верх"},
@@ -73,11 +78,6 @@ type Orientation struct {
 	Name    string `bson: "name"`
 	Caption string `bson: "caption"`
 	Current bool
-}
-
-type Region struct {
-	ID   string `bson: "_id"`
-	Name string `bson: "name"`
 }
 
 func GetSexes() map[string]Sex {
@@ -144,4 +144,9 @@ func GetOrientations() map[string]Orientation {
 	}
 
 	return orientations
+}
+
+type Region struct {
+	ID   bson.ObjectId `bson:"_id,omitempty"`
+	Name string        `bson:"name"`
 }
