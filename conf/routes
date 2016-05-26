@@ -25,6 +25,7 @@ GET		/chat/:id 				Chat.Room
 
 #GET	/regions/load			Region.Load
 #GET 	/regions/create_rooms 	Region.CreateRooms
+#GET     /regions/default        Region.Default
 GET     /favicon.ico        	404
 
 GET     /public/*filepath   Static.Serve("public")

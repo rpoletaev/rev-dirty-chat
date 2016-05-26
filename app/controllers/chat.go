@@ -34,8 +34,10 @@ func (c *Chat) Index() revel.Result {
 
 	user, err := userService.FindUserByID(c.Services(), c.Session["CurrentUserID"])
 	if err == nil && user != nil {
-		region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
-		rooms[region.ID] = region.Name
+		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
+			region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
+			rooms[region.ID] = region.Name
+		}
 	}
 
 	for _, v := range user.Rooms {

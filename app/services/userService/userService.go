@@ -176,23 +176,6 @@ func GetPrivateRoomIDWithUser(service *services.Service, fromUser, toUser string
 	// все левые приватки
 }
 
-// func UserHasRoomWithID(service *services.Service, userId, roomId bson.ObjectId ) {
-// 	err = service.DBAction(COLLECTION,
-// 		func(collection *mgo.Collection) {
-// 			pipeline := []bson.M{{"$match": bson.M{"_id":bson.M{"$in": []bson.ObjectId{bson.ObjectIdHex(fromUser), bson.ObjectIdHex(toUser)}}}},
-// 					bson.M{"$unwind": "$rooms"},
-// 					bson.M{"$project": bson.M{"name": "$rooms.name", "code": "$rooms.code",	}},
-// 					bson.M{"$and": []interface{
-// 						{"$rooms.is_private": "true"},
-// 						{"$rooms._id": roomInFromUser.ID}
-// 					}
-// 				}
-// 			}
-
-// 			return collection.Pipe(pipeline).One(roomInToUser)
-// 		})
-// }
-
 func UpsertUser(service *services.Service, user *models.User) (err error) {
 	defer helper.CatchPanic(&err, service.UserId, "UpsertUser")
 

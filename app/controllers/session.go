@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
@@ -61,7 +62,7 @@ func (c *Session) Create(password, email string) revel.Result {
 	user, err = userService.FindUser(c.Services(), originalAccount.Login)
 	if err != nil {
 		//TODO: нужно проверить вернется ли ошибка, если не нашли соответсвующего пользователя
-		c.RenderError(err)
+		return c.RenderError(err)
 	}
 
 	if user == nil {
@@ -82,7 +83,7 @@ func (c *Session) Create(password, email string) revel.Result {
 		return c.Redirect((*App).Index)
 	}
 
-	return c.Redirect(fmt.Sprintf("/user/me", originalAccount.Login))
+	return c.Redirect("/user/me")
 }
 
 func (c *Session) Drop() revel.Result {

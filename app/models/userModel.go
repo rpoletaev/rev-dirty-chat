@@ -43,7 +43,7 @@ func CreateUser(accountId, account string) User {
 		DateOfBirth:  time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 		ShowInSearch: true,
 		About:        "Что Вы можете рассказать о себе?",
-		Region:       "Краснодарский край",
+		Region:       "574621ad282c61b7d98bf612",
 		Status:       "",
 		Avatar:       "/public/img/avatar/noavatar.png",
 		Portrait:     "/public/img/avatar/noavatar.png",

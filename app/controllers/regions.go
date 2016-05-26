@@ -22,6 +22,20 @@ func init() {
 	revel.InterceptMethod((*Region).Panic, revel.PANIC)
 }
 
+func (c *Region) Default() revel.Result {
+	if !c.IsAdmin() {
+		return c.RenderTemplate("templates/errors/500.html")
+	}
+
+	region := models.Region{Name: "Не указан"}
+	err := regionService.InsertRegion(c.Services(), &region)
+	if err != nil {
+		return c.RenderError(err)
+	}
+
+	return c.RenderText("Все заебись!")
+}
+
 func (c *Region) Load() revel.Result {
 	if !c.IsAdmin() {
 		return c.RenderTemplate("templates/errors/500.html")
