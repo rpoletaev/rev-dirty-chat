@@ -21,7 +21,7 @@
 							<i class="small material-icons">chat</i>
 						</a>
 						<div id="message_modal" class="modal">
-							<form name="send_message" method="POST" action="/chat/create" />
+							<form name="send_message" method="POST" action="/chat/private" />
 								<div class="modal-content">
 									<input type="text" name="message_text"/>
 									<input type="hidden" name="user" value="{{.user.ID.Hex}}"/>

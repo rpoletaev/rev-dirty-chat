@@ -27,6 +27,10 @@ type ChatUser struct {
 	Url        string
 }
 
+func (cu *ChatUser) GetValuePair() models.KeyValuePair {
+	return models.KeyValuePair{ID: bson.ObjectIdHex(cu.OriginalID), Name: cu.Name}
+}
+
 func createChatUser(u *models.User) *ChatUser {
 	user := &ChatUser{
 		u.ID.Hex(),
@@ -89,7 +93,7 @@ func GetRoom(service *services.Service, id string) (room *Room, err error) {
 		go room.Run()
 		return room, nil
 	} else {
-		return room, fmt.Errorf("Комната не найдена")
+		return room, fmt.Errorf("Room not found")
 	}
 }
 
@@ -154,7 +158,7 @@ func FindRoomByRegion(service *services.Service, regionId string) (room *models.
 
 func GetRegionRoom(service *services.Service, regionId string) (room *Room, err error) {
 	var ok bool
-	fmt.Println("RegionID: %s", regionId)
+
 	if room, ok = _This.regionRooms[regionId]; ok {
 		return room, nil
 	}
@@ -164,6 +168,7 @@ func GetRegionRoom(service *services.Service, regionId string) (room *Room, err 
 	if err != nil {
 		panic(err)
 	}
+
 	room = &Room{
 		RoomHeader: header,
 	}
@@ -174,6 +179,94 @@ func GetRegionRoom(service *services.Service, regionId string) (room *Room, err 
 	} else {
 		return nil, fmt.Errorf("Комната не найдена")
 	}
+}
+
+// Find RoomHeader, create if not exist
+func GetRoomBetweenUsers(service *services.Service, users []string) (header *models.RoomHeader, err error) {
+	queryMap := bson.M{"$and": []bson.M{bson.M{"isprivate": true}, bson.M{"users.id": bson.M{"$all": users}}}}
+
+	tracelog.TRACE(helper.MAIN_GO_ROUTINE, "GetRoomBetweenUsers", "Query : %s", mongo.ToString(queryMap))
+
+	header = &models.RoomHeader{}
+	err = service.DBAction(COLLECTION,
+		func(collection *mgo.Collection) error {
+			return collection.Find(queryMap).One(header)
+		})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomBetweenUsers")
+		return nil, err
+	}
+
+	room := &Room{RoomHeader: header}
+	_This.rooms[room.ID.String()] = room
+	go room.Run()
+
+	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
+	return header, err
+}
+
+func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomHeader, error) {
+
+	kpUsrs := []struct {
+		ID     bson.ObjectId `bson:"_id"`
+		Name   string        `bson:"accountlogin"`
+		Avatar string        `bson:"avatar"`
+	}{}
+
+	usrQuery := bson.M{"_id": bson.M{"$in": []interface{}{bson.ObjectIdHex(users[0]), bson.ObjectIdHex(users[1])}}}
+
+	err := service.DBAction("users",
+		func(collection *mgo.Collection) error {
+			return collection.Find(usrQuery).Select(bson.M{"accountlogin": 1, "avatar": 1}).All(&kpUsrs)
+		})
+
+	if err != nil {
+		kperror := fmt.Errorf("KeyValue for users %#v not found", users)
+		tracelog.COMPLETED_ERROR(kperror, helper.MAIN_GO_ROUTINE, "GetRoomBetweenUsers")
+		return nil, err
+	}
+
+	tracelog.INFO(helper.MAIN_GO_ROUTINE, "KeyValue", "%#v", kpUsrs)
+	if len(kpUsrs) < 2 {
+		err = fmt.Errorf("Do not all users %#v will be found", kpUsrs)
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomBetweenUsers")
+		return nil, err
+	}
+
+	header := &models.RoomHeader{
+		ID:        bson.NewObjectId(),
+		Users:     kpUsrs,
+		IsPrivate: true,
+	}
+
+	room := &Room{RoomHeader: header}
+	_This.rooms[room.ID.String()] = room
+	go room.Run()
+
+	err = InsertRoom(service, header)
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "CreatePrivateRoom")
+	}
+
+	err = service.DBAction("users", func(collection *mgo.Collection) error {
+		update := bson.M{
+			"$push": bson.M{"rooms": bson.M{"_id": header.ID, "name": header.Users[1].Name, "avatar": header.Users[1].Avatar}},
+		}
+
+		return collection.UpdateId(header.Users[0].ID, update)
+	})
+
+	err = service.DBAction("users", func(collection *mgo.Collection) error {
+		update := bson.M{
+			"$push": bson.M{"rooms": bson.M{"_id": header.ID, "name": header.Users[0].Name, "avatar": header.Users[0].Avatar}},
+		}
+
+		return collection.UpdateId(header.Users[1].ID, update)
+	})
+	tracelog.COMPLETED(service.UserId, "CreatePrivateRoom")
+
+	return header, nil
 }
 
 func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
@@ -208,7 +301,7 @@ func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
 	return room, nil
 }
 
-func InsertRoom(service *services.Service, room *Room) (err error) {
+func InsertRoom(service *services.Service, room *models.RoomHeader) (err error) {
 	defer helper.CatchPanic(&err, service.UserId, "InsertRoom")
 
 	err = service.DBAction(COLLECTION,

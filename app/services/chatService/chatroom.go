@@ -84,11 +84,6 @@ func (r *Room) Run() {
 		return
 	}
 
-	fmt.Println(r)
-	if _, ok := _This.rooms[r.ID.String()]; !ok {
-		_This.rooms[r.ID.String()] = r
-	}
-
 	r.subscribe = make(chan (chan<- Subscription), archiveSize)
 	r.unsubscribe = make(chan (<-chan Event), archiveSize)
 	r.publish = make(chan Event, archiveSize)
@@ -110,7 +105,6 @@ func (r *Room) Run() {
 
 		case event := <-r.publish:
 			for ch := subscribers.Front(); ch != nil; ch = ch.Next() {
-				fmt.Println(event)
 				ch.Value.(chan Event) <- event
 			}
 			if archive.Len() >= archiveSize {

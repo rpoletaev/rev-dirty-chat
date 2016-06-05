@@ -5,7 +5,16 @@
 <main ng-app="chat">
 	<div class="row" ng-controller="ChatMessages">
 		<div class="col l3 s12 m4">
-			<div class="card-panel blue"><span class="white-text">{{.room.Name}}</span></div>
+			<div class="card-panel blue">
+				<div class="row valign-wrapper">
+					<div class="col s3">
+						<img src="{{.room.Avatar}}" class="circle responsive-img">		
+					</div>
+					<div class="col s9">
+						<span class="white-text">{{.room.Name}}</span>
+					</div>
+				</div>				
+			</div>
 		</div>
 		<div class="chat col l6 s12 m8">
 			<div id="messages" class="row">

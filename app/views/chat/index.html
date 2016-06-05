@@ -7,10 +7,18 @@
 		<div class="col l3 s12 m4 l3">
 			Тут будут тулы для создания чатов
 		</div>
-		<div class="collection col l6 s12 m8">
-		{{range $key, $value := .rooms}}
-			<a class="collection-item room" href="/chat/{{$key.Hex}}">{{$value}}<span class="new badge">2</span></a> 
-		{{end}}
+		<div class="col l6 s12 m8">
+			<ul class="collection">
+			{{range $key, $value := .rooms}}
+				<li class="collection-item avatar">
+					<img src="{{$value.Avatar}}" class="circle">
+					<a href="/chat/{{$key.Hex}}" class="title">"{{$value.Name}}</a>
+					<span class="secondary-content">
+						<i class="material-icons">label	</i>
+					</span>
+				</li>
+			{{end}}		
+			</ul>
 		</div>
 		<div class="col l3">
 			Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem eum sequi totam, blanditiis architecto veniam nostrum nisi adipisci dolorem neque placeat ex praesentium perferendis, accusamus libero esse qui, magni optio.
