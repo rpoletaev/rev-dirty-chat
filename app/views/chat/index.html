@@ -12,7 +12,7 @@
 			{{range $key, $value := .rooms}}
 				<li class="collection-item avatar">
 					<img src="{{$value.Avatar}}" class="circle">
-					<a href="/chat/{{$key.Hex}}" class="title">"{{$value.Name}}</a>
+					<a href="/chat/{{$key.Hex}}" class="title">{{$value.Name}}</a>
 					<span class="secondary-content">
 						<i class="material-icons">label	</i>
 					</span>

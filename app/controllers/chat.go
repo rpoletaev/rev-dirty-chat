@@ -80,7 +80,6 @@ func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
 		time.Sleep(time.Millisecond * 500)
 	}
 
-	fmt.Println(room.IsRuning)
 	// Join the room.
 	subscription := room.Subscribe()
 	fmt.Println("We are Subscribed")

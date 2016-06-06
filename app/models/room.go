@@ -27,3 +27,13 @@ type KeyValuePair struct {
 	ID   bson.ObjectId `bson:"_id"`
 	Name string        `bson:"name"`
 }
+
+//Message Represent object to db
+type Message struct {
+	ID        bson.ObjectId `bson:"_id,omitempty"`
+	RoomID    bson.ObjectId `bson:"room_id"`
+	UserID    bson.ObjectId `bson:"user_id"`
+	Text      string        `bson:"text"`
+	URL       string        `bson:"url"`
+	CreatedAt time.Time     `bson:"created_at"`
+}
