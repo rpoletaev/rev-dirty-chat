@@ -8,13 +8,16 @@ import (
 
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
+	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const archiveSize = 100
 
 type ChatMessage struct {
 	Event string `json:"event"`
-	Text  string `json:"data"`
+	Data  string `json:"data"`
 }
 
 type Subscription struct {
@@ -34,12 +37,32 @@ type Event struct {
 type EventData struct {
 	User      ChatUser
 	Timestamp int
-	Text      string
+	Body      json.RawMessage
 }
 
-func newEvent(typ string, user ChatUser, msg string) Event {
+func newEvent(typ string, user ChatUser, msg json.RawMessage) Event {
 	data := EventData{user, int(time.Now().Unix()), msg}
 	return Event{typ, data}
+}
+
+type StoredMessage struct {
+	ID        bson.ObjectId   `bson:"_id,omitempty"`
+	RoomID    bson.ObjectId   `bson:"roomId"`
+	UserID    bson.ObjectId   `bson: "userid"`
+	Body      json.RawMessage `bson:"body"`
+	CreatedAt int             `bson:"createdAt"`
+}
+
+func RestoreMessageEvent(msg StoredMessage, service *services.Service) Event {
+	user, _ := GetChatUser(service, msg.UserID.Hex())
+	return Event{
+		"message",
+		EventData{
+			*user,
+			msg.CreatedAt,
+			msg.Body,
+		},
+	}
 }
 
 type Room struct {
@@ -62,7 +85,23 @@ func (r *Room) Say(service *services.Service, userId string, msg string) {
 	if err == nil && chatUser != nil {
 		var message ChatMessage
 		json.Unmarshal([]byte(msg), &message)
-		r.publish <- newEvent("message", *chatUser, message.Text)
+		r.publish <- newEvent("message", *chatUser, message.Data)
+
+		mes := StoredMessage{
+			ID:        bson.NewObjectId(),
+			RoomID:    r.ID,
+			UserID:    bson.ObjectIdHex(userId),
+			CreatedAt: int(time.Now().Unix()),
+			Body:      []byte(msg),
+		}
+
+		mgoerr := service.DBAction("messages", func(collection *mgo.Collection) error {
+			return collection.Insert(mes)
+		})
+
+		if mgoerr != nil {
+			tracelog.ALERT("Cant't save message", "aoeu", "Say", mgoerr.Error())
+		}
 	}
 }
 
@@ -79,7 +118,7 @@ func (r *Room) Subscribe() Subscription {
 	return <-resp
 }
 
-func (r *Room) Run() {
+func (r *Room) Run(service *services.Service) {
 	if r.IsRuning || r == nil {
 		return
 	}
@@ -89,6 +128,17 @@ func (r *Room) Run() {
 	r.publish = make(chan Event, archiveSize)
 
 	archive := list.New()
+	history := []StoredMessage{}
+
+	err := service.DBAction("messages", func(col *mgo.Collection) error {
+		return col.Find(bson.M{"roomId": r.ID}).Sort("-_id").Limit(archiveSize).All(&history)
+	})
+
+	if err == nil {
+		for _, hm := range history {
+			hm
+		}
+	}
 	subscribers := list.New()
 	r.IsRuning = true
 
