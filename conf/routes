@@ -22,7 +22,7 @@ GET		/chat					Chat.Index
 #POST 	/chat  					Chat.Create
 WS		/chat/:id/ws			Chat.RoomSocket
 GET		/chat/:id 				Chat.Room
-POST     /chat/private          Chat.GetPrivateRoom
+POST    /chat/private          Chat.GetPrivateRoom
 #GET	/regions/load			Region.Load
 #GET 	/regions/create_rooms 	Region.CreateRooms
 #GET     /regions/default        Region.Default

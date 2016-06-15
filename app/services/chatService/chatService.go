@@ -90,7 +90,7 @@ func GetRoom(service *services.Service, id string) (room *Room, err error) {
 	room, err = GetRoomByID(service, id)
 	if err == nil && room != nil {
 		_This.rooms[id] = room
-		go room.Run()
+		go room.Run(service)
 		return room, nil
 	} else {
 		return room, fmt.Errorf("Room not found")
@@ -174,7 +174,7 @@ func GetRegionRoom(service *services.Service, regionId string) (room *Room, err 
 	}
 	if err == nil && room != nil {
 		_This.regionRooms[regionId] = room
-		go room.Run()
+		go room.Run(service)
 		return room, nil
 	} else {
 		return nil, fmt.Errorf("Комната не найдена")
@@ -200,7 +200,7 @@ func GetRoomBetweenUsers(service *services.Service, users []string) (header *mod
 
 	room := &Room{RoomHeader: header}
 	_This.rooms[room.ID.String()] = room
-	go room.Run()
+	go room.Run(service)
 
 	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
 	return header, err
@@ -242,7 +242,7 @@ func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomH
 
 	room := &Room{RoomHeader: header}
 	_This.rooms[room.ID.String()] = room
-	go room.Run()
+	go room.Run(service)
 
 	err = InsertRoom(service, header)
 	if err != nil {
@@ -277,7 +277,7 @@ func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
 	err = service.DBAction("rooms",
 		func(collection *mgo.Collection) error {
 			if !bson.IsObjectIdHex(id) {
-				return fmt.Errorf("Неправильный код")
+				return fmt.Errorf("Неправильный код %s", id)
 			}
 
 			header := &models.RoomHeader{}

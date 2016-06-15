@@ -37,30 +37,36 @@ type Event struct {
 type EventData struct {
 	User      ChatUser
 	Timestamp int
-	Body      json.RawMessage
+	Text      string
 }
 
-func newEvent(typ string, user ChatUser, msg json.RawMessage) Event {
+func newEvent(typ string, user ChatUser, msg string) Event {
 	data := EventData{user, int(time.Now().Unix()), msg}
 	return Event{typ, data}
 }
 
 type StoredMessage struct {
-	ID        bson.ObjectId   `bson:"_id,omitempty"`
-	RoomID    bson.ObjectId   `bson:"roomId"`
-	UserID    bson.ObjectId   `bson: "userid"`
-	Body      json.RawMessage `bson:"body"`
-	CreatedAt int             `bson:"createdAt"`
+	ID        bson.ObjectId `bson:"_id,omitempty"`
+	RoomID    bson.ObjectId `bson:"roomId"`
+	UserID    bson.ObjectId `bson:"userid"`
+	Body      string        `bson:"body"`
+	CreatedAt int           `bson:"createdAt"`
 }
 
-func RestoreMessageEvent(msg StoredMessage, service *services.Service) Event {
+func (msg *StoredMessage) RestoreMessageEvent(service *services.Service) Event {
 	user, _ := GetChatUser(service, msg.UserID.Hex())
+	cm := &ChatMessage{}
+	err := json.Unmarshal([]byte(msg.Body), cm)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return Event{
-		"message",
+		cm.Event,
 		EventData{
 			*user,
 			msg.CreatedAt,
-			msg.Body,
+			cm.Data,
 		},
 	}
 }
@@ -92,7 +98,7 @@ func (r *Room) Say(service *services.Service, userId string, msg string) {
 			RoomID:    r.ID,
 			UserID:    bson.ObjectIdHex(userId),
 			CreatedAt: int(time.Now().Unix()),
-			Body:      []byte(msg),
+			Body:      msg,
 		}
 
 		mgoerr := service.DBAction("messages", func(collection *mgo.Collection) error {
@@ -131,13 +137,15 @@ func (r *Room) Run(service *services.Service) {
 	history := []StoredMessage{}
 
 	err := service.DBAction("messages", func(col *mgo.Collection) error {
-		return col.Find(bson.M{"roomId": r.ID}).Sort("-_id").Limit(archiveSize).All(&history)
+		return col.Find(bson.M{"roomId": r.ID}).Sort("_id").Limit(archiveSize).All(&history)
 	})
 
-	if err == nil {
-		for _, hm := range history {
-			hm
-		}
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for _, hs := range history {
+		archive.PushBack(hs.RestoreMessageEvent(service))
 	}
 	subscribers := list.New()
 	r.IsRuning = true
@@ -171,6 +179,4 @@ func (r *Room) Run(service *services.Service) {
 			}
 		}
 	}
-
-	fmt.Println("room is runing")
 }

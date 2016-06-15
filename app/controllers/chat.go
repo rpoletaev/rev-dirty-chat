@@ -70,7 +70,6 @@ func (c *Chat) GetPrivateRoom(user, message_text string) revel.Result {
 }
 
 func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
-
 	room, err := chatService.GetRoom(c.Services(), id)
 	if err != nil {
 		c.RenderTemplate("errors/404.html")
@@ -133,6 +132,9 @@ func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
 }
 
 func (c *Chat) Room(id string) revel.Result {
+	if !bson.IsObjectIdHex(id) {
+		return c.RenderTemplate("errors/501.html")
+	}
 	room, err := chatService.GetRoom(c.Services(), id)
 	if err != nil {
 		c.RenderTemplate("errors/404.html")

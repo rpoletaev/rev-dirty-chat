@@ -10,13 +10,14 @@ package mongo
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/revel/revel"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"strings"
-	"time"
 )
 
 //** CONSTANTS
@@ -260,6 +261,7 @@ func Execute(sessionId string, mongoSession *mgo.Session, databaseName string, c
 
 	if mongoSession == nil {
 		tracelog.INFO("routineName", sessionId, "Execute, какая то хуйня с сессией")
+		return fmt.Errorf("Session is nill")
 	}
 
 	// Capture the specified collection
