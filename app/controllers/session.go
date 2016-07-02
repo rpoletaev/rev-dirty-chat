@@ -77,6 +77,7 @@ func (c *Session) Create(password, email string) revel.Result {
 	c.Session["Authenticated"] = "true"
 	c.Session["Login"] = originalAccount.Login
 	c.Session["CurrentUserID"] = user.ID.Hex()
+	c.Session["VilibleName"] = user.VisibleName
 
 	if originalAccount.IsAdmin {
 		c.Session["IsAdmin"] = "true"

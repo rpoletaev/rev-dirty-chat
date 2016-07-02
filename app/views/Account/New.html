@@ -1,11 +1,11 @@
-{{set . "title" "Home"}}
-{{template "header.html" .}}
+[{set . "title" "Home"}]
+[{template "header.html" .}]
 
 <main>
 
   <div class="row">
     <div class="container">
-      {{template "flash.html" .}}
+      [{template "flash.html" .}]
     </div>
   </div>
   <div class="row">
@@ -38,7 +38,7 @@
               <!-- <label for="email">Email</label> -->
             </div>
           </div>
-          <input type="hidden" name="csrf_token" value="{{.csrf_token}}" />
+          <input type="hidden" name="csrf_token" value="[{.csrf_token}]" />
         </form>
         <div class="row">
             <input class="btn col l4 offset-l4 s12" type="submit" value="Поехали" form="SignForm"/>
@@ -47,4 +47,4 @@
   </div>
 </main>
 
-{{template "footer.html" .}}
+[{template "footer.html" .}]

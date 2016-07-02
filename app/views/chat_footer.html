@@ -16,9 +16,9 @@
       </div>
   </footer> -->
   
-  {{if eq .RunMode "dev"}}
-    {{template "debug.html" .}}
-  {{end}}
+  [{if eq .RunMode "dev"}]
+    [{template "debug.html" .}]
+  [{end}]
  <!--  <script type="text/javascript">
     var ws = new WebSocket('ws://localhost:9000/chat/socket?user=roma');
     ws.onmessage = function(event) {
@@ -34,9 +34,9 @@
   <!-- <script src="/public/js/bower_components/ngtouch/build/ngTouch.min.js" type="text/javascript" charset="utf-8"></script>  -->
   <script src="/public/js/ng-websocket.js" type="text/javascript" charset="utf-8"></script> 
   <script src="/public/js/controllers/chat.js" type="text/javascript" charset="utf-8"></script> 
-  {{range .moreScripts}}
-    <script src="/public/js/{{.}}" type="text/javascript" charset="utf-8"></script>
-  {{end}}
+  [{range .moreScripts}]
+    <script src="/public/js/[{.}]" type="text/javascript" charset="utf-8"></script>
+  [{end}]
 
   </body>
 </html>

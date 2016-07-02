@@ -19,21 +19,22 @@
   		</div>
   </footer>
   
- <!--  {{if eq .RunMode "dev"}}
-    {{template "debug.html" .}}
-  {{end}}
+ <!--  [{if eq .RunMode "dev"}]
+    [{template "debug.html" .}]
+  [{end}]
  -->
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="/public/js/materialize.js" type="text/javascript" charset="utf-8"></script>
   <script src="/public/js/init.js" type="text/javascript" charset="utf-8"></script>
-  <!-- <script src="/public/js/controller.js" type="text/javascript" charset="utf-8"></script> -->
+  <script src="/public/js/xing_editor/wysihtml5.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/public/js/xing_editor/simple_rules.js" type="text/javascript" charset="utf-8"></script>
   <script src="/public/js/croppie.min.js" type="text/javascript" charset="utf-8"></script>
   <!-- <script src="/public/js/angular.js" type="text/javascript" charset="utf-8"></script> 
   <script src="/public/js/ng-websocket.js" type="text/javascript" charset="utf-8"></script> 
   <script src="http://api-maps.yandex.ru/2.0-stable/?load=package.standard&lang=ru-RU" type="text/javascript"></script-->
-  <!-- {{range .moreScripts}}
-    <script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
-  {{end}} -->
+  <!-- [{range .moreScripts}]
+    <script src="/public/[{.}]" type="text/javascript" charset="utf-8"></script>
+  [{end}] -->
 
   </body>
 </html>

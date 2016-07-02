@@ -13,7 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const archiveSize = 100
+const archiveSize = 20
 
 type ChatMessage struct {
 	Event string `json:"event"`

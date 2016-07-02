@@ -1,14 +1,14 @@
-	{{set . "title" "Home"}}
-	{{template "header.html" .}}
-	{{template "common_hat.html" .}}
-	{{$user := .user}}
+	[{set . "title" "Home"}]
+	[{template "header.html" .}]
+	[{template "common_hat.html" .}]
+	[{$user := .user}]
 
 	<main>
 		<div class="row container">
 			<div class="col s12 m4 l3">
-				<input id="login" type="hidden" value="{{.user.AccountLogin}}"/>
+				<input id="login" type="hidden" value="[{.user.AccountLogin}]"/>
 				<div class="image-container">
-					<img id="portrait" class="responsive-img materialboxed" src="{{$user.Portrait}}">
+					<img id="portrait" class="responsive-img materialboxed" src="[{$user.Portrait}]">
 						<ul class="image-tools">
 							<li class="tool-item file-field input-field">
 								<a class="btn-floating waves-effect waves-light">
@@ -40,70 +40,70 @@
 			<div class="col s12 m8 l6">
 				<div class="row">
 					<div class="input-field col s12 m12 l12">
-						<input type="text" id="visname" name="VisibleName" class="bindable" value="{{.user.VisibleName}}"></input>
+						<input type="text" id="visname" name="VisibleName" class="bindable" value="[{.user.VisibleName}]"></input>
 						<label for="visname">Отображаемое имя</label>
 					</div>
 				</div><!-- VisibleName -->
 				<div class="row">
 					<div class="input-field col s12 m12 l12">
-						<input type="text" id="status" name="Status" class="bindable" value="{{.user.Status}}"></input>
+						<input type="text" id="status" name="Status" class="bindable" value="[{.user.Status}]"></input>
 						<label for="status">Статус</label>
 					</div>
 				</div><!-- Status -->
 				<div class="row">
 					<div class="input-field col s12 m4 l4">
 						<h6>Пол</h6>
-						{{range .sexes}}
+						[{range .sexes}]
 						<p>
-							<input class="bindable" name="Sex" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Sex.Name }}checked{{end}} />
-							<label for={{.Name}} >{{.Caption}}</label>	
+							<input class="bindable" name="Sex" type="radio" id=[{.Name}] value=[{.Name}] [{if eq .Name $user.Sex.Name }]checked[{end}] />
+							<label for=[{.Name}] >[{.Caption}]</label>	
 						</p>
-						{{end}}
+						[{end}]
 					</div><!--Sex-->
 					<div class="input-field col s12 m4 l4">
 							<h6>Позиционирование</h6>
-							{{range .positions}}
+							[{range .positions}]
 							<p>
-								<input class="bindable" name="Position" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Position.Name}} checked {{end}} />
-									<label for={{.Name}} >{{.Caption}}</label>
+								<input class="bindable" name="Position" type="radio" id=[{.Name}] value=[{.Name}] [{if eq .Name $user.Position.Name}] checked [{end}] />
+									<label for=[{.Name}] >[{.Caption}]</label>
 							</p>
-							{{end}}
+							[{end}]
 					</div><!--Position-->
 					<div class="input-field col s12 m4 l4">
 							<h6>Ориентация</h6>
-							{{range .orientations}}
+							[{range .orientations}]
 							<p>
-								<input class="bindable" name="Orientation" type="radio" id={{.Name}} value={{.Name}} {{if eq .Name $user.Orientation.Name}} checked {{end}} />
-									<label for={{.Name}} >{{.Caption}}</label>
+								<input class="bindable" name="Orientation" type="radio" id=[{.Name}] value=[{.Name}] [{if eq .Name $user.Orientation.Name}] checked [{end}] />
+									<label for=[{.Name}] >[{.Caption}]</label>
 							</p>
-							{{end}}
+							[{end}]
 					</div><!--Position-->
 				</div><!--Radio-->
 				<div class="row">
 					<div class="input-field col s12 m6 l6">
-						<input id="dateOfBirth"name="DateOfBirth" type="date" class="datepicker bindable" value={{.user.PickerBirthDate}}>	
+						<input id="dateOfBirth"name="DateOfBirth" type="date" class="datepicker bindable" value=[{.user.PickerBirthDate}]>	
 						<label for="dateOfBirth">Дата рождения</label>
 					</div>
 				</div><!--DateOfBirth-->
 				<div class="row">
 					<div class="input-field col s12 m12 l12">
 						<select id="region" name="Region" size="6" class="bindable">
-						    {{range .regions}}
-						    <option value="{{.ID.Hex}}" {{if eq .ID.Hex $user.Region}} selected {{end}}>{{.Name}}</option>
-						    {{end}}
+						    [{range .regions}]
+						    <option value="[{.ID.Hex}]" [{if eq .ID.Hex $user.Region}] selected [{end}]>[{.Name}]</option>
+						    [{end}]
 						</select>
 						<label for="region">Укажите регион проживания</label>
 					</div>
 				</div>
 				<div class="row">
 					<div class="input-field col s12 m12 l12">
-						<textarea id="about" name="About" class="bindable materialize-textarea">{{.user.About}}</textarea>
+						<textarea id="about" name="About" class="bindable materialize-textarea">[{.user.About}]</textarea>
 						<label for="about">О себе</label>
 					</div>
 				</div><!-- About-->
 				<div class="row">
 					<div class="input-field col s12 m12 l12">
-						<textarea id="interest" name="Interest" class="bindable materialize-textarea">{{.user.Interest}}</textarea>
+						<textarea id="interest" name="Interest" class="bindable materialize-textarea">[{.user.Interest}]</textarea>
 						<label for="interest">Интересы</label>
 					</div>
 				</div><!-- Interest -->
@@ -113,18 +113,18 @@
 						<div class="switch">
 							<label>
 							 Нет
-								<input id="showinsearch" class="bindable" name="ShowInSearch" type="checkbox" {{if .user.ShowInSearch}}checked{{end}}/>
+								<input id="showinsearch" class="bindable" name="ShowInSearch" type="checkbox" [{if .user.ShowInSearch}]checked[{end}]/>
 							  	<span class="lever"></span>
 							 Да
 							</label>
 						</div>
 					</div>
 				</div><!--ShowInSearch-->
-				<input type="hidden" name="csrf_token" value="{{.csrf_token}}" />
+				<input type="hidden" name="csrf_token" value="[{.csrf_token}]" />
 			</div><!--Content-->	
 			<div class="col s12 l3">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis consequuntur quam dicta consequatur suscipit? Dignissimos, iste soluta. Atque quod tempora enim officiis, harum nostrum, excepturi quas, consectetur distinctio fugit labore!
 			</div>
 		</div>
 	</main>
 
-{{template "footer.html" .}}
+[{template "footer.html" .}]

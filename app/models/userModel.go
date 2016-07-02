@@ -19,6 +19,7 @@ type User struct {
 	Sex          Sex           `bson:"sex"`
 	Position     Position      `bson:"position"`
 	Orientation  Orientation   `bson:"orientation"`
+	Rating       int           `bson:"rating"`
 	Interest     string        `bson:"interest"`
 	DateOfBirth  time.Time     `bson:"dateofbirth"`
 	ShowInSearch bool          `bson:"showinsearch"`

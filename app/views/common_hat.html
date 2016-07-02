@@ -14,7 +14,7 @@
 				<li>
 					<a href="/feedback" data-method="get" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Написать нам"><i class="tiny material-icons">hearing</i></a></li>
 				<li>
-					<a href="{{url "Session.Drop"}}" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Выйти"><i class="tiny material-icons">power_settings_new</i></a></li>
+					<a href="[{url "Session.Drop"}]" data-method="post" class="tooltipped" data-position="bottom" data-delay="50" data-tooltip="Выйти"><i class="tiny material-icons">power_settings_new</i></a></li>
 			</ul>
 			<ul class="side-nav" id="mobile-demo">
 				<li>
@@ -27,9 +27,9 @@
 				<li>
 					<a href="/feedback" data-method="get" class="tooltipped" data-position="bottom" data-delay="50"><i class="tiny material-icons">hearing</i>Написать нам</a></li>
 				<li>
-					<a href="{{url "Session.Drop"}}" data-method="post" class="tooltipped" data-position="bottom" data-delay="50"><i class="tiny material-icons">power_settings_new</i>Выйти</a></li>
+					<a href="[{url "Session.Drop"}]" data-method="post" class="tooltipped" data-position="bottom" data-delay="50"><i class="tiny material-icons">power_settings_new</i>Выйти</a></li>
 			</ul>
 		</div>
 	</nav>
 </header>
-		{{template "flash.html" .}}
+		[{template "flash.html" .}]

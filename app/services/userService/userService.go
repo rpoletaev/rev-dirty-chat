@@ -103,3 +103,27 @@ func UpsertUser(service *services.Service, user *models.User) (err error) {
 
 	return nil
 }
+
+func UpdateRating(service *services.Service, userId string, value int) (err error) {
+	defer helper.CatchPanic(&err, service.UserId, "UpsertUser")
+
+	user, err := FindUserByID(service, userId)
+
+	if value < 0 {
+		user.Rating--
+	} else {
+		user.Rating++
+	}
+
+	err = service.DBAction(COLLECTION, func(col *mgo.Collection) error {
+		upd := bson.M{"rating": user.Rating}
+		return col.UpdateId(user.ID, upd)
+	})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "UpsertUser")
+		return err
+	}
+
+	return nil
+}

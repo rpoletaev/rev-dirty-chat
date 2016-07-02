@@ -1,6 +1,6 @@
-{{set . "title" "Чат"}}
-{{template "header.html" .}}
-{{template "common_hat.html" .}}
+[{set . "title" "Чат"}]
+[{template "header.html" .}]
+[{template "common_hat.html" .}]
 
 <main>
 	<div class="row">
@@ -9,15 +9,15 @@
 		</div>
 		<div class="col l6 s12 m8">
 			<ul class="collection">
-			{{range $key, $value := .rooms}}
+			[{range $key, $value := .rooms}]
 				<li class="collection-item avatar">
-					<img src="{{$value.Avatar}}" class="circle">
-					<a href="/chat/{{$key.Hex}}" class="title">{{$value.Name}}</a>
+					<img src="[{$value.Avatar}]" class="circle">
+					<a href="/chat/[{$key.Hex}]" class="title">[{$value.Name}]</a>
 					<span class="secondary-content">
 						<i class="material-icons">label	</i>
 					</span>
 				</li>
-			{{end}}		
+			[{end}]		
 			</ul>
 		</div>
 		<div class="col l3">
@@ -25,4 +25,4 @@
 		</div>
 	</div>
 </main>
-{{template "footer.html" .}}
+[{template "footer.html" .}]

@@ -232,8 +232,13 @@ $(function(){
 			$(this).parent().removeClass('hoverable');
 		});
 	});
-});
 
+	var editor = new wysihtml5.Editor("wysihtml5-textarea", {
+		tollbar: "toolbar",
+		parserRules: wysihtml5ParserRules,
+		stylesheet: ["http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css", "/public/css/editor.css"]
+	});
+});
 
 function dataURItoBlob(dataURI) {
         var split = dataURI.split(','),

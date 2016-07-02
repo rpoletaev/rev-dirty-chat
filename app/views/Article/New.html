@@ -1,0 +1,41 @@
+	[{set . "title" "Home"}]
+	[{template "header.html" .}]
+	[{template "common_hat.html" .}]
+
+		<div class="row">
+				<div class="col m3 l3 hide-on-small-only">
+						oeuioui
+				</div>
+				<div class="col s12 l6">
+					<form action="create" method="POST" name="article">
+						<div class="row">
+							<div class="col s12">
+								<div class="input-field col l12">
+									<input type="text" id="title" name="title">
+									<label for="title">Заголовок</label>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="input-field col s12">
+								<!--<i class="material-icons prefix">mode_edit</i>-->
+								<textarea name="source_text" id="source_text" cols="30" rows="10" class="materialize-textarea"></textarea>
+								<label for="source_text">Исходный текст статьи</label>
+							</div>
+						</div>
+						<div class="row">
+							<div class="input-field col l12">
+								<input type="text" id="tags" name="tags">
+								<label for="tags">Укажите теги статьи</label>
+							</div>
+						</div>
+						<input type="hidden" name="csrf_token" value="[{.csrf_token}]" />
+						<input type="submit" name="Сохранить"/>
+					</form>			
+				</div>
+				<div class="col l3 hide-on-med-and-down">
+						
+				</div>
+		</div>
+
+		[{template "footer.html" .}]

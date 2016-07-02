@@ -1,6 +1,6 @@
-{{set . "title" "Чат"}}
-{{template "header.html" .}}
-{{template "common_hat.html" .}}
+[{set . "title" "Чат"}]
+[{template "header.html" .}]
+[{template "common_hat.html" .}]
 
 <main ng-app="chat">
 	<div class="row" ng-controller="ChatMessages">
@@ -8,10 +8,10 @@
 			<div class="card-panel blue">
 				<div class="row valign-wrapper">
 					<div class="col l3 s2">
-						<img src="{{.room.Avatar}}" class="circle responsive-img">		
+						<img src="[{.room.Avatar}]" class="circle responsive-img">		
 					</div>
 					<div class="col l9 s10">
-						<span class="white-text">{{.room.Name}}</span>
+						<span class="white-text">[{.room.Name}]</span>
 					</div>
 				</div>				
 			</div>
@@ -19,16 +19,16 @@
 		<div class="chat col l6 s12 m12">
 			<div id="messages" class="row">
 				<div class="col l12 s12">
-					<div id="anchor[[msg.hash]]" class="row" ng-repeat="msg in messages">
+					<div id="anchor{{msg.hash}}" class="row" ng-repeat="msg in messages">
 						<div class="col s12 l12">
 					        <div class="row message-wrapper">
 					            <div class="col s1 l1">
-					     	       <img src="[[msg.User.Avatar]]" class="circle" width="40" /> <!-- class="circle" notice the "circle" class -->
+					     	       <img src="{{msg.User.Avatar}}" class="circle" width="40" />
 					            </div>
 						        <div class="col s11 l11">
 						        	<div class="row message-wrapper">
 						        		<div class="col s12 l10">
-						        			<a ng-href="[[msg.User.Url]]" ng-bind="msg.User.Name"></a>
+						        			<a ng-href="{{msg.User.Url}}" ng-bind="msg.User.Name"></a>
 						        		</div>
 						        		<div class="col s0 l2 hide-on-small-only">
 						        			<span ng-bind="msg.Datestr"></span>
@@ -64,4 +64,4 @@
 		</div>
 	</div>
 </main>
-{{template "chat_footer.html" .}}
+[{template "chat_footer.html" .}]

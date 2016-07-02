@@ -1,6 +1,6 @@
-{{set . "title" "Home"}}
-{{template "header.html" .}}
-{{template "common_hat.html" .}}
+[{set . "title" "Home"}]
+[{template "header.html" .}]
+[{template "common_hat.html" .}]
 
 <main>
   <div class="row main-container">
@@ -86,4 +86,4 @@
   </div>
 </main>
 
-{{template "chat_footer.html" .}}
+[{template "chat_footer.html" .}]
