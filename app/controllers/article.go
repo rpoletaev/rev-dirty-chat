@@ -101,8 +101,8 @@ func (art *Article) Show(id string) revel.Result {
 	return art.Render(article)
 }
 
-func (art *Article) Index(filter map[string]interface{}) revel.Result {
-	articles, count, err := articles.GetPageArticles(art.Services(), filter, 1, 10)
+func (art *Article) Index() revel.Result {
+	articles, count, err := articles.GetPageArticles(art.Services(), 1, 10)
 
 	if err != nil {
 		return art.RenderError(err)
@@ -111,6 +111,17 @@ func (art *Article) Index(filter map[string]interface{}) revel.Result {
 	pageCount := count % 10
 	return art.Render(articles, pageCount)
 }
+
+// func (art *Article) Index(filter map[string]interface{}) revel.Result {
+// 	articles, count, err := articles.GetPageArticles(art.Services(), filter, 1, 10)
+
+// 	if err != nil {
+// 		return art.RenderError(err)
+// 	}
+
+// 	pageCount := count % 10
+// 	return art.Render(articles, pageCount)
+// }
 
 // func (art *Article) Delete() revel.Result {
 

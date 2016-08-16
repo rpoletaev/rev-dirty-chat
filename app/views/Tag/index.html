@@ -1,0 +1,48 @@
+[{set . "title" "Home"}]
+[{template "header.html" .}]
+[{template "common_hat.html" .}]
+
+		<div class="row">
+				<div class="col m3 l3 hide-on-small-only">
+					 <form name="new_tag" action="tags/create" method="POST">
+                        <input type="text" name="id" id="id_box"/>
+                        <label for="id_box">Тег</label>
+                        
+                        <input type="text" name="synonim" id="synonim_box"/>
+                        <label for="synonim_box">Синонимы</label>
+                        <input type="hidden" name="csrf_token" value="[{.csrf_token}]">
+                        <input class="btn" type="submit"/>
+                    </form>	
+				</div>
+				<div class="col s12 l6">
+                   <div class="collection">
+                       <!--<li class="collection-header"><h5>Теги</h5></li>-->
+                       [{range .tags}]
+                       <div class="collection-item">
+                           <a href="#" class="collection-item">[{.ID}]</a>
+                            <p>
+                                [{range $syn := .Synonims}]
+                                    [{$syn}]
+                                [{end}]
+                            </p>
+                       </div>   
+                        [{end}] 
+                   </div>
+					
+                       
+                    <!--<ul class="pagination">
+                        <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+                        <li class="active"><a href="#!">1</a></li>
+                        <li class="waves-effect"><a href="#!">2</a></li>
+                        <li class="waves-effect"><a href="#!">3</a></li>
+                        <li class="waves-effect"><a href="#!">4</a></li>
+                        <li class="waves-effect"><a href="#!">5</a></li>
+                        <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+                    </ul>-->
+				</div>
+				<div class="col l3 hide-on-med-and-down">
+						
+				</div>
+		</div>
+
+[{template "footer.html" .}]

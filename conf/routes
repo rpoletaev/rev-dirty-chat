@@ -23,6 +23,7 @@ GET		/chat					Chat.Index
 WS		/chat/:id/ws			Chat.RoomSocket
 GET		/chat/:id 				Chat.Room
 POST    /chat/private          Chat.GetPrivateRoom
+
 #GET	/regions/load			Region.Load
 #GET 	/regions/create_rooms 	Region.CreateRooms
 #GET    /regions/default        Region.Default
@@ -32,6 +33,9 @@ GET     /articles/new       Article.New
 POST    /articles/create    Article.Create
 GET     /articles/show/:id  Article.Show
 GET     /articles           Article.Index
+
+GET     /tags           Tag.Index
+POST    /tags/create    Tag.Create
 GET     /public/*filepath   Static.Serve("public")
 
 * /:controller/:action      :controller.:action

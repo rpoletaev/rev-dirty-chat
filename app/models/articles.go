@@ -33,7 +33,7 @@ type Comment struct {
 
 type Tag struct {
 	ID       string   `bson:"_id,omitempty"`
-	Sinonyms []string `bson:"sinonyms"`
+	Synonims []string `bson:"synonims"`
 }
 
 type ShortUser struct {

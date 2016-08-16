@@ -132,14 +132,14 @@ func UpdateArticle(service *services.Service, article models.Article) (err error
 	return nil
 }
 
-func GetPageArticles(service *services.Service, filter bson.M, page, count int) (articles *[]models.Article, filteredCount int, err error) {
+func GetPageArticles(service *services.Service, page, count int) (articles *[]models.Article, filteredCount int, err error) {
 	defer helper.CatchPanic(&err, service.UserId, "GetArticles")
 
 	skipingCount := (page - 1) * count
 	articles = &[]models.Article{}
 
 	err = service.DBAction("articles", func(collection *mgo.Collection) error {
-		query := collection.Find(filter)
+		query := collection.Find(nil)
 		filteredCount, err = query.Count()
 		if err != nil {
 			return err
@@ -173,4 +173,49 @@ func ChangeRating(service *services.Service, articleId string, value int) (err e
 	}
 
 	return nil
+}
+
+func GetAllTags(service *services.Service) (tags *[]models.Tag, err error) {
+	defer helper.CatchPanic(&err, service.UserId, "GetAllTags")
+
+	tracelog.STARTED(service.UserId, "GetAllTags")
+
+	tags = &[]models.Tag{}
+	err = service.DBAction("tags",
+		func(collection *mgo.Collection) error {
+			return collection.Find(nil).All(tags)
+		})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetAllTags")
+		return nil, err
+	}
+
+	tracelog.COMPLETED(service.UserId, "GetAllTags")
+	return tags, nil
+}
+
+func InsertTag(service *services.Service, tag models.Tag) (err error) {
+	defer helper.CatchPanic(&err, service.UserId, "InsertTag")
+	tracelog.STARTED(service.UserId, "InsertTag")
+
+	err = service.DBAction("tags",
+		func(collection *mgo.Collection) error {
+			_, upserr := collection.Upsert(bson.M{"_id": tag.ID}, tag)
+			return upserr
+		})
+	return err
+}
+
+func GetAllSynonims(service *services.Service, tags []string) (synonims []string, err error) {
+	defer helper.CatchPanic(&err, service.UserId, "GetTags")
+	tracelog.STARTED(service.UserId, "InsertTag")
+
+	synonims = []string{}
+	err = service.DBAction("tags",
+		func(collection *mgo.Collection) error {
+			return collection.Find(bson.M{"_id": bson.M{"$in": tags}}).Distinct("synonims", &synonims)
+		})
+
+	return synonims, err
 }
