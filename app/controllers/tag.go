@@ -50,18 +50,10 @@ func (tag *Tag) Create(id, synonim string) revel.Result {
 	}
 
 	for _, syn := range allSynonims {
-		fmt.Println("syn is ", syn)
-		fmt.Println("allSynonims is ", allSynonims)
-		fmt.Println("without ", helper.StringsWithoutFirstEntry(allSynonims, syn))
+		helper.StringsWithoutFirstEntry(allSynonims, syn)
+		newTag := models.Tag{ID: syn, Synonims: syns}
+		articles.InsertTag(tag.Services(), newTag)
 	}
-	// for i, syn := range allSynonims {
-	// 	syns := make([]string, len(allSynonims))
-	// 	copy(syns, allSynonims)
-	// 	syns = append(syns[:i], syns[i+1:]...)
 
-	// 	newTag := models.Tag{ID: syn, Synonims: syns}
-
-	// 	articles.InsertTag(tag.Services(), newTag)
-	// }
 	return tag.RenderText("tag synonims is ", allSynonims)
 }

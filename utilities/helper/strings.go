@@ -34,7 +34,7 @@ func stringsContainsIgnoreKeys(src []string, s string) bool {
 func StringsWithoutFirstEntry(src []string, s string) []string {
 	dest := make([]string, len(src))
 	copy(dest, src)
-	for i, str := range src {
+	for i, str := range dest {
 		if str == s {
 			dest = append(dest[:i], dest[i+1:]...)
 			return dest
