@@ -81,6 +81,14 @@ func DeleteUserFromCache(id string) {
 	delete(_This.users, id)
 }
 
+func GetRunningRoom(id string) (*Room, error) {
+	if room, ok := _This.rooms[id]; ok {
+		return room, nil
+	}
+
+	return nil, fmt.Errorf("The room is'nt found")
+}
+
 func GetRoom(service *services.Service, id string) (room *Room, err error) {
 	var ok bool
 	if room, ok = _This.rooms[id]; ok {
@@ -90,11 +98,18 @@ func GetRoom(service *services.Service, id string) (room *Room, err error) {
 	room, err = GetRoomByID(service, id)
 	if err == nil && room != nil {
 		_This.rooms[id] = room
-		go room.Run(service)
+		go room.Run()
 		return room, nil
-	} else {
-		return room, fmt.Errorf("Room not found")
 	}
+	return room, fmt.Errorf("Room not found")
+}
+
+func GetRuningRoom(id string) *Room {
+	if room, ok := _This.rooms[id]; ok {
+		return room
+	}
+
+	return nil
 }
 
 func FindRoomsByUser(service *services.Service, userRooms []string) (rooms []*Room, err error) {
@@ -169,16 +184,15 @@ func GetRegionRoom(service *services.Service, regionId string) (room *Room, err 
 		panic(err)
 	}
 
-	room = &Room{
-		RoomHeader: header,
-	}
+	room = &Room{RoomHeader: header}
+
 	if err == nil && room != nil {
 		_This.regionRooms[regionId] = room
-		go room.Run(service)
+		go room.Run()
 		return room, nil
-	} else {
-		return nil, fmt.Errorf("Комната не найдена")
 	}
+
+	return nil, fmt.Errorf("Комната не найдена")
 }
 
 // Find RoomHeader, create if not exist
@@ -200,7 +214,7 @@ func GetRoomBetweenUsers(service *services.Service, users []string) (header *mod
 
 	room := &Room{RoomHeader: header}
 	_This.rooms[room.ID.String()] = room
-	go room.Run(service)
+	go room.Run()
 
 	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
 	return header, err
@@ -242,7 +256,7 @@ func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomH
 
 	room := &Room{RoomHeader: header}
 	_This.rooms[room.ID.String()] = room
-	go room.Run(service)
+	go room.Run()
 
 	err = InsertRoom(service, header)
 	if err != nil {

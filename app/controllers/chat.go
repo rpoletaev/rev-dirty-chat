@@ -43,6 +43,7 @@ func (c *Chat) Index() revel.Result {
 		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
 			region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
 			rooms[region.ID] = *region.RoomHeader
+			fmt.Println("RegionRoom Is ", region.RoomHeader.Name)
 		}
 	}
 
@@ -84,9 +85,9 @@ func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
 	fmt.Println("We are Subscribed")
 	defer room.Unsubscribe(subscription)
 
-	room.Join(c.Services(), c.Session["CurrentUserID"])
+	room.Join(c.Session["CurrentUserID"], &subscription)
 	fmt.Println("We are Joined")
-	defer room.Leave(c.Services(), c.Session["CurrentUserID"])
+	defer room.Leave(c.Session["CurrentUserID"])
 
 	// Send down the archive.
 	for _, event := range subscription.Archive {
@@ -125,7 +126,7 @@ func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
 			}
 
 			fmt.Println(msg)
-			room.Say(c.Services(), c.Session["CurrentUserID"], msg)
+			room.Say(c.Session["CurrentUserID"], msg)
 		}
 	}
 	return nil
@@ -152,4 +153,71 @@ func (c *Chat) Room(id string) revel.Result {
 	}
 
 	return c.Render(room)
+}
+
+func (c *Chat) Subscribe(ws *websocket.Conn) revel.Result {
+	if !c.Authenticated() {
+		return nil
+	}
+
+	user, err := userService.FindUserByID(c.Services(), c.Session["CurrentUserID"])
+	if err == nil && user != nil {
+		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
+			region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
+			c.SubscribeSocket(region.RoomHeader.ID.Hex(), ws)
+		}
+	}
+
+	for _, v := range user.Rooms {
+		rr := chatService.GetRuningRoom(v.ID.Hex())
+		if rr != nil {
+			c.SubscribeSocket(rr.ID.Hex(), ws)
+		}
+	}
+
+	return nil
+}
+
+func (c *Chat) SubscribeSocket(id string, ws *websocket.Conn) revel.Result {
+	room, err := chatService.GetRunningRoom(id)
+	if err != nil {
+		println("unable subscribe to room ", id)
+		return nil
+	}
+
+	subscription := room.Subscribe()
+	fmt.Println("We are Subscribed to notification")
+	defer room.Unsubscribe(subscription)
+
+	//GET Stored Unread messages and send
+	// for _, event := range subscription.Archive {
+	// 	if websocket.JSON.Send(ws, &event) != nil {
+	// 		return nil
+	// 	}
+	// }
+
+	// // In order to select between websocket messages and subscription events, we
+	// // need to stuff websocket events into a channel.
+	newMessages := make(chan string)
+	go func() {
+		var msg string
+		for {
+			err := websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				close(newMessages)
+				return
+			}
+			newMessages <- msg
+		}
+	}()
+
+	// // Now listen for new events from either the websocket or the chatroom.
+	for {
+		event := <-subscription.New
+		if websocket.JSON.Send(ws, &event) != nil {
+			// They disconnected.
+			return nil
+		}
+	}
+	return nil
 }

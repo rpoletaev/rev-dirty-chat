@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
+	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/articles"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 )
@@ -50,8 +50,7 @@ func (tag *Tag) Create(id, synonim string) revel.Result {
 	}
 
 	for _, syn := range allSynonims {
-		helper.StringsWithoutFirstEntry(allSynonims, syn)
-		newTag := models.Tag{ID: syn, Synonims: syns}
+		newTag := models.Tag{ID: syn, Synonims: helper.StringsWithoutFirstEntry(allSynonims, syn)}
 		articles.InsertTag(tag.Services(), newTag)
 	}
 

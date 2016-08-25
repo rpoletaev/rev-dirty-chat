@@ -8,6 +8,7 @@ import (
 
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
+	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -21,6 +22,7 @@ type ChatMessage struct {
 }
 
 type Subscription struct {
+	userId  string
 	Archive []Event
 	New     <-chan Event
 }
@@ -38,10 +40,11 @@ type EventData struct {
 	User      ChatUser
 	Timestamp int
 	Text      string
+	RoomID    string
 }
 
-func newEvent(typ string, user ChatUser, msg string) Event {
-	data := EventData{user, int(time.Now().Unix()), msg}
+func newEvent(typ string, user ChatUser, msg, roomId string) Event {
+	data := EventData{user, int(time.Now().Unix()), msg, roomId}
 	return Event{typ, data}
 }
 
@@ -55,53 +58,57 @@ type StoredMessage struct {
 
 func (msg *StoredMessage) RestoreMessageEvent(service *services.Service) Event {
 	user, _ := GetChatUser(service, msg.UserID.Hex())
-	cm := &ChatMessage{}
-	err := json.Unmarshal([]byte(msg.Body), cm)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// cm := &ChatMessage{}
+	// err := json.Unmarshal([]byte(msg.Body), cm)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	return Event{
-		cm.Event,
+		"message",
 		EventData{
 			*user,
 			msg.CreatedAt,
-			cm.Data,
+			msg.Body,
+			msg.RoomID.Hex(),
 		},
 	}
 }
 
 type Room struct {
 	*models.RoomHeader
+	dbService   services.Service
 	IsRuning    bool
 	subscribe   chan (chan<- Subscription)
 	unsubscribe chan (<-chan Event)
 	publish     chan Event
+	inRoomSubs  map[string][]*Subscription
 }
 
-func (r *Room) Join(service *services.Service, userId string) {
-	chatUser, err := GetChatUser(service, userId)
+func (r *Room) Join(userId string, sub *Subscription) {
+	chatUser, err := GetChatUser(&r.dbService, userId)
 	if err == nil && chatUser != nil {
-		r.publish <- newEvent("join", *chatUser, fmt.Sprintf("%s join to the room", chatUser.Name))
+		r.publish <- newEvent("join", *chatUser, fmt.Sprintf("%s join to the room", chatUser.Name), r.ID.Hex())
+		r.inRoomSubs[userId] = append(r.inRoomSubs[userId], sub)
 	}
 }
 
-func (r *Room) Say(service *services.Service, userId string, msg string) {
-	chatUser, err := GetChatUser(service, userId)
+func (r *Room) Say(userId string, msg string) {
+	chatUser, err := GetChatUser(&r.dbService, userId)
 	if err == nil && chatUser != nil {
 		var message ChatMessage
 		json.Unmarshal([]byte(msg), &message)
-		r.publish <- newEvent("message", *chatUser, message.Data)
+		r.publish <- newEvent("message", *chatUser, message.Data, r.ID.Hex())
 
 		mes := StoredMessage{
 			ID:        bson.NewObjectId(),
 			RoomID:    r.ID,
 			UserID:    bson.ObjectIdHex(userId),
 			CreatedAt: int(time.Now().Unix()),
-			Body:      msg,
+			Body:      message.Data,
 		}
 
-		mgoerr := service.DBAction("messages", func(collection *mgo.Collection) error {
+		mgoerr := r.dbService.DBAction("messages", func(collection *mgo.Collection) error {
 			return collection.Insert(mes)
 		})
 
@@ -111,10 +118,10 @@ func (r *Room) Say(service *services.Service, userId string, msg string) {
 	}
 }
 
-func (r *Room) Leave(service *services.Service, userId string) {
-	chatUser, err := GetChatUser(service, userId)
+func (r *Room) Leave(userId string) {
+	chatUser, err := GetChatUser(&r.dbService, userId)
 	if err == nil && chatUser != nil {
-		r.publish <- newEvent("leave", *chatUser, fmt.Sprintf("%s leave the room", chatUser.Name))
+		r.publish <- newEvent("leave", *chatUser, fmt.Sprintf("%s leave the room", chatUser.Name), r.ID.Hex())
 	}
 }
 
@@ -124,11 +131,20 @@ func (r *Room) Subscribe() Subscription {
 	return <-resp
 }
 
-func (r *Room) Run(service *services.Service) {
+func (r *Room) Run() {
 	if r.IsRuning || r == nil {
 		return
 	}
 
+	var mongoErr error
+	r.dbService.UserId = r.ID.Hex()
+	r.dbService.MongoSession, mongoErr = mongo.CopyMonotonicSession(r.dbService.UserId)
+	defer r.dbService.MongoSession.Close()
+	if mongoErr != nil {
+		tracelog.ERROR(mongoErr, r.ID.Hex(), "Room.Run")
+	}
+
+	r.inRoomSubs = make(map[string][]*Subscription)
 	r.subscribe = make(chan (chan<- Subscription), archiveSize)
 	r.unsubscribe = make(chan (<-chan Event), archiveSize)
 	r.publish = make(chan Event, archiveSize)
@@ -136,7 +152,7 @@ func (r *Room) Run(service *services.Service) {
 	archive := list.New()
 	history := []StoredMessage{}
 
-	err := service.DBAction("messages", func(col *mgo.Collection) error {
+	err := r.dbService.DBAction("messages", func(col *mgo.Collection) error {
 		return col.Find(bson.M{"roomId": r.ID}).Sort("_id").Limit(archiveSize).All(&history)
 	})
 
@@ -145,7 +161,7 @@ func (r *Room) Run(service *services.Service) {
 	}
 
 	for _, hs := range history {
-		archive.PushBack(hs.RestoreMessageEvent(service))
+		archive.PushBack(hs.RestoreMessageEvent(&r.dbService))
 	}
 	subscribers := list.New()
 	r.IsRuning = true
