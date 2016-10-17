@@ -60,12 +60,7 @@ func (c *Session) Create(password, email string) revel.Result {
 	//Set Session variables to valid user
 	var user *models.User
 	user, err = userService.FindUser(c.Services(), originalAccount.Login)
-	if err != nil {
-		//TODO: нужно проверить вернется ли ошибка, если не нашли соответсвующего пользователя
-		return c.RenderError(err)
-	}
-
-	if user == nil {
+	if err != nil && err.Error() == "not found" {
 		u := models.CreateUser(originalAccount.ID.Hex(), originalAccount.Login)
 		user = &u
 		userService.InsertUser(c.Services(), user)

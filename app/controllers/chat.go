@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/revel/revel"
 	cb "github.com/rpoletaev/rev-dirty-chat/app/controllers/base"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
@@ -11,7 +11,6 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
-	"golang.org/x/net/websocket"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -26,10 +25,6 @@ func init() {
 }
 
 func (c *Chat) Index() revel.Result {
-	if !c.Authenticated() {
-		return c.Redirect("/session/new")
-	}
-
 	rooms := map[bson.ObjectId]models.RoomHeader{}
 
 	//Получим Global
@@ -42,6 +37,7 @@ func (c *Chat) Index() revel.Result {
 	if err == nil && user != nil {
 		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
 			region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
+			println("reg room is ", region.RoomHeader.Name)
 			rooms[region.ID] = *region.RoomHeader
 			fmt.Println("RegionRoom Is ", region.RoomHeader.Name)
 		}
@@ -70,68 +66,6 @@ func (c *Chat) GetPrivateRoom(user, message_text string) revel.Result {
 	return c.Redirect(fmt.Sprintf("/chat/%s", header.ID.Hex()))
 }
 
-func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
-	room, err := chatService.GetRoom(c.Services(), id)
-	if err != nil {
-		c.RenderTemplate("errors/404.html")
-	}
-
-	for !room.IsRuning {
-		time.Sleep(time.Millisecond * 500)
-	}
-
-	// Join the room.
-	subscription := room.Subscribe()
-	fmt.Println("We are Subscribed")
-	defer room.Unsubscribe(subscription)
-
-	room.Join(c.Session["CurrentUserID"], &subscription)
-	fmt.Println("We are Joined")
-	defer room.Leave(c.Session["CurrentUserID"])
-
-	// Send down the archive.
-	for _, event := range subscription.Archive {
-		if websocket.JSON.Send(ws, &event) != nil {
-			return nil
-		}
-	}
-
-	// // In order to select between websocket messages and subscription events, we
-	// // need to stuff websocket events into a channel.
-	newMessages := make(chan string)
-	go func() {
-		var msg string
-		for {
-			err := websocket.Message.Receive(ws, &msg)
-			if err != nil {
-				close(newMessages)
-				return
-			}
-			newMessages <- msg
-		}
-	}()
-
-	// // Now listen for new events from either the websocket or the chatroom.
-	for {
-		select {
-		case event := <-subscription.New:
-			if websocket.JSON.Send(ws, &event) != nil {
-				// They disconnected.
-				return nil
-			}
-		case msg, ok := <-newMessages:
-			// If the channel is closed, they disconnected.
-			if !ok {
-				return nil
-			}
-
-			fmt.Println(msg)
-			room.Say(c.Session["CurrentUserID"], msg)
-		}
-	}
-	return nil
-}
-
 func (c *Chat) Room(id string) revel.Result {
 	if !bson.IsObjectIdHex(id) {
 		return c.RenderTemplate("errors/500.html")
@@ -155,69 +89,29 @@ func (c *Chat) Room(id string) revel.Result {
 	return c.Render(room)
 }
 
-func (c *Chat) Subscribe(ws *websocket.Conn) revel.Result {
-	if !c.Authenticated() {
-		return nil
-	}
-
-	user, err := userService.FindUserByID(c.Services(), c.Session["CurrentUserID"])
-	if err == nil && user != nil {
-		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
-			region, _ := chatService.GetRegionRoom(c.Services(), user.Region)
-			c.SubscribeSocket(region.RoomHeader.ID.Hex(), ws)
-		}
-	}
-
-	for _, v := range user.Rooms {
-		rr := chatService.GetRuningRoom(v.ID.Hex())
-		if rr != nil {
-			c.SubscribeSocket(rr.ID.Hex(), ws)
+func (c *Chat) Subscribe(id string, ws *websocket.Conn) revel.Result {
+	client := chatService.NewClient(c.Session["CurrentUserID"], ws)
+	rHeaders := chatService.GetUserRoomHeaders(c.Services(), c.Session["CurrentUserID"])
+	for _, rh := range rHeaders {
+		if room, err := chatService.GetRoomIfRunning(rh.ID.Hex()); err == nil {
+			room.RegisterClient(&client)
+			go client.SendMe(room)
 		}
 	}
 
 	return nil
 }
 
-func (c *Chat) SubscribeSocket(id string, ws *websocket.Conn) revel.Result {
-	room, err := chatService.GetRunningRoom(id)
+func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
+	defer ws.Close()
+	room, err := chatService.GetRoom(c.Services(), id)
 	if err != nil {
-		println("unable subscribe to room ", id)
+		ws.WriteMessage(websocket.CloseMessage, []byte("room not found!"))
 		return nil
 	}
-
-	subscription := room.Subscribe()
-	fmt.Println("We are Subscribed to notification")
-	defer room.Unsubscribe(subscription)
-
-	//GET Stored Unread messages and send
-	// for _, event := range subscription.Archive {
-	// 	if websocket.JSON.Send(ws, &event) != nil {
-	// 		return nil
-	// 	}
-	// }
-
-	// // In order to select between websocket messages and subscription events, we
-	// // need to stuff websocket events into a channel.
-	newMessages := make(chan string)
-	go func() {
-		var msg string
-		for {
-			err := websocket.Message.Receive(ws, &msg)
-			if err != nil {
-				close(newMessages)
-				return
-			}
-			newMessages <- msg
-		}
-	}()
-
-	// // Now listen for new events from either the websocket or the chatroom.
-	for {
-		event := <-subscription.New
-		if websocket.JSON.Send(ws, &event) != nil {
-			// They disconnected.
-			return nil
-		}
-	}
+	client := chatService.NewClient(c.Session["CurrentUserID"], ws)
+	room.RegisterClient(&client)
+	go client.SendMe(room)
+	client.ReadMe(room)
 	return nil
 }
