@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/revel/revel"
@@ -11,6 +13,7 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"github.com/rpoletaev/wskeleton"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -90,12 +93,22 @@ func (c *Chat) Room(id string) revel.Result {
 }
 
 func (c *Chat) Subscribe(id string, ws *websocket.Conn) revel.Result {
-	client := chatService.NewClient(c.Session["CurrentUserID"], ws)
+	client := wskeleton.NewClient(ws, func(raw []byte) wskeleton.Message {
+		var msg string
+		json.Unmarshal(raw, &msg)
+		cu, _ := chatService.GetChatUser(c.Services(), c.Session["CurrentUserID"])
+		data := chatService.MessageData{
+			User:      *cu,
+			Timestamp: int(time.Now().Unix()),
+			Text:      msg,
+		}
+		return wskeleton.Message{"message", data}
+	})
 	rHeaders := chatService.GetUserRoomHeaders(c.Services(), c.Session["CurrentUserID"])
 	for _, rh := range rHeaders {
 		if room, err := chatService.GetRoomIfRunning(rh.ID.Hex()); err == nil {
 			room.RegisterClient(&client)
-			go client.SendMe(room)
+			go client.SendMe(room.Hub)
 		}
 	}
 
@@ -109,9 +122,20 @@ func (c *Chat) RoomSocket(id string, ws *websocket.Conn) revel.Result {
 		ws.WriteMessage(websocket.CloseMessage, []byte("room not found!"))
 		return nil
 	}
-	client := chatService.NewClient(c.Session["CurrentUserID"], ws)
+
+	frontMsg := struct {
+		Event string `json:"event"`
+		Data  string `json:text`
+	}{}
+	client := wskeleton.NewClient(ws, func(raw []byte) wskeleton.Message {
+		json.Unmarshal(raw, &frontMsg)
+		cu, _ := chatService.GetChatUser(c.Services(), c.Session["CurrentUserID"])
+		data := chatService.MessageData{*cu, int(time.Now().Unix()), frontMsg.Data, room.ID.Hex()}
+		return wskeleton.Message{"message", data}
+	})
+
 	room.RegisterClient(&client)
-	go client.SendMe(room)
-	client.ReadMe(room)
+	go client.SendMe(room.Hub)
+	client.ReadMe(room.Hub)
 	return nil
 }

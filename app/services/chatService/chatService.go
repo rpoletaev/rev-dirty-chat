@@ -10,6 +10,7 @@ import (
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"github.com/rpoletaev/wskeleton"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -54,7 +55,7 @@ type chatCacheManager struct {
 	regionRooms map[string]*room
 
 	wsPeers      map[string][]*websocket.Conn
-	userChannels map[string][]chan Event
+	userChannels map[string][]chan wskeleton.Message
 }
 
 var _This *chatCacheManager
@@ -64,13 +65,13 @@ func Startup() {
 		users:        make(map[string]*ChatUser),
 		rooms:        make(map[string]*room),
 		regionRooms:  make(map[string]*room),
-		userChannels: make(map[string][]chan Event),
+		userChannels: make(map[string][]chan wskeleton.Message),
 	}
 }
 
-func GetUserSubscribe(userId string) chan Event {
+func GetUserSubscribe(userId string) chan wskeleton.Message {
 	println("create new channel")
-	channel := make(chan Event)
+	channel := make(chan wskeleton.Message)
 	_This.userChannels[userId] = append(_This.userChannels[userId], channel)
 	return channel
 }
@@ -111,7 +112,7 @@ func GetRoom(service *services.Service, id string) (room *room, err error) {
 	room, err = GetRoomByID(service, id)
 	if err == nil && room != nil {
 		_This.rooms[id] = room
-		go room.run()
+		go room.Run()
 		return room, nil
 	}
 	return room, fmt.Errorf("Room not found")
@@ -214,7 +215,7 @@ func GetRegionRoom(service *services.Service, regionId string) (room *room, err 
 
 	if err == nil && room != nil {
 		_This.regionRooms[regionId] = room
-		go room.run()
+		go room.Run()
 		return room, nil
 	}
 
@@ -240,7 +241,7 @@ func GetRoomBetweenUsers(service *services.Service, users []string) (header *mod
 
 	room := CreateRoom(header)
 	_This.rooms[room.ID.String()] = room
-	go room.run()
+	go room.Run()
 
 	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
 	return header, err
@@ -282,7 +283,7 @@ func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomH
 
 	room := CreateRoom(header)
 	_This.rooms[room.ID.String()] = room
-	go room.run()
+	go room.Run()
 
 	err = InsertRoom(service, header)
 	if err != nil {
@@ -332,11 +333,11 @@ func GetRoomByID(service *services.Service, id string) (r *room, err error) {
 		})
 
 	if err != nil {
-		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomByIDNew")
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomByID")
 		return nil, err
 	}
 
-	tracelog.COMPLETED(service.UserId, "GetRoomByIDNew")
+	tracelog.COMPLETED(service.UserId, "GetRoomByID")
 	return r, nil
 }
 
@@ -368,6 +369,37 @@ func UpdateRoom(service *services.Service, findCondition map[string]interface{},
 
 	if err != nil {
 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "UpdateRoom")
+		return err
+	}
+
+	return nil
+}
+
+func GetRoomArchive(mongo *services.Service, id bson.ObjectId) (history []StoredMessage, err error) {
+	defer helper.CatchPanic(&err, mongo.UserId, "GetRoomArchive")
+
+	history = []StoredMessage{}
+	err = mongo.DBAction("messages", func(col *mgo.Collection) error {
+		return col.Find(bson.M{"roomId": id}).Sort("-createdAt").Limit(archiveSize).All(&history)
+	})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomArchive")
+		return nil, err
+	}
+
+	return history, nil
+}
+
+func InsertChatMessage(mongo *services.Service, message StoredMessage) (err error) {
+	defer helper.CatchPanic(&err, mongo.UserId, "InsertChatMessage")
+
+	err = mongo.DBAction("messages", func(col *mgo.Collection) error {
+		return col.Insert(message)
+	})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "InsertChatMessage")
 		return err
 	}
 

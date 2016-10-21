@@ -1,46 +1,34 @@
 package chatService
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"github.com/rpoletaev/wskeleton"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-const (
-//archiveSize = 30
-)
+const archiveSize = 20
 
 type room struct {
 	*models.RoomHeader
-	mongo      services.Service
-	clients    map[*client]bool
-	broadcast  chan Event
-	register   chan *client
-	unregister chan *client
-
-	archive *archive
+	mongo services.Service
+	*wskeleton.Hub
 }
 
 func CreateRoom(header *models.RoomHeader) *room {
 	return &room{
 		RoomHeader: header,
-		broadcast:  make(chan Event),
-		register:   make(chan *client),
-		unregister: make(chan *client),
-		clients:    make(map[*client]bool),
-		archive:    CreateArchive(archiveSize),
+		Hub:        wskeleton.CreateHub(nil),
 	}
 }
 
-func (r *room) run() {
+func (r *room) Run() {
 	var mgoErr error
-
 	r.mongo.UserId = r.ID.Hex()
 	r.mongo.MongoSession, mgoErr = mongo.CopyMonotonicSession(r.mongo.UserId)
 	defer r.mongo.MongoSession.Close()
@@ -48,60 +36,35 @@ func (r *room) run() {
 		tracelog.ERROR(mgoErr, r.mongo.UserId, "Room.Run")
 	}
 
-	for {
-		select {
-		case c := <-r.register:
-			r.clients[c] = true
-			println("Client added! new client count is ", len(r.clients))
-			r.sendArchive(c)
-			break
-
-		case c := <-r.unregister:
-			_, ok := r.clients[c]
-			if ok {
-				delete(r.clients, c)
-				close(c.send)
-			}
-			break
-
-		case m := <-r.broadcast:
-			r.archive.Add(m)
-			r.broadcastMessage(m)
-			break
-		}
-	}
-}
-
-func (r *room) sendArchive(c *client) {
-	r.archive.Each(func(message interface{}) {
-		c.send <- message.(Event)
-	})
-}
-
-func (r *room) broadcastMessage(message Event) {
-	for c := range r.clients {
-		select {
-		case c.send <- message:
-			break
-
-		default:
-			close(c.send)
-			delete(r.clients, c)
-		}
-	}
-}
-
-func (r *room) ProcessMessageFromUser(userID string, message []byte) {
-	cu, err := GetChatUser(&r.mongo, userID)
+	history, err := GetRoomArchive(&r.mongo, r.ID)
 	if err != nil {
-		tracelog.ERROR(err, r.ID.Hex(), "ProcessMessageFromUser")
-		return
+		panic(err)
 	}
 
-	var msg ChatMessage
-	json.Unmarshal(message, &msg)
-	r.broadcast <- newEvent("message", *cu, msg.Data, r.ID.Hex())
-	r.StoreMessage(userID, msg.Data)
+	archive := wskeleton.CreateArchive(archiveSize)
+	for _, hs := range history {
+		archive.AddBack(hs.RestoreMessage(&r.mongo))
+	}
+	r.Hub.SetArchive(archive)
+	r.Hub.AddBeforeBroadcast(func(msg *wskeleton.Message) {
+		go func() {
+			cm := msg.Data.(MessageData)
+			sm := StoredMessage{
+				ID:        bson.NewObjectId(),
+				CreatedAt: cm.Timestamp,
+				Body:      cm.Text,
+				RoomID:    r.ID,
+				UserID:    bson.ObjectIdHex(cm.User.OriginalID),
+			}
+
+			err = InsertChatMessage(&r.mongo, sm)
+			if err != nil {
+				println(err.Error())
+			}
+		}()
+
+	})
+	r.Hub.Run()
 }
 
 func (r *room) StoreMessage(userID, data string) {
@@ -122,22 +85,35 @@ func (r *room) StoreMessage(userID, data string) {
 	}
 }
 
-func (r *room) RegisterClient(c *client) {
-	r.register <- c
+type StoredMessage struct {
+	ID        bson.ObjectId `bson:"_id,omitempty"`
+	RoomID    bson.ObjectId `bson:"roomId"`
+	UserID    bson.ObjectId `bson:"userid"`
+	Body      string        `bson:"body"`
+	CreatedAt int           `bson:"createdAt"`
 }
 
-func (r *room) FillArchive() {
-	history := []StoredMessage{}
-
-	err := r.mongo.DBAction("messages", func(col *mgo.Collection) error {
-		return col.Find(bson.M{"roomId": r.ID}).Sort("_id").Limit(archiveSize).All(&history)
-	})
-
-	if err != nil {
-		panic(err)
+func (msg *StoredMessage) RestoreMessage(service *services.Service) wskeleton.Message {
+	user, _ := GetChatUser(service, msg.UserID.Hex())
+	return wskeleton.Message{
+		"message",
+		MessageData{
+			*user,
+			msg.CreatedAt,
+			msg.Body,
+			msg.RoomID.Hex(),
+		},
 	}
+}
 
-	for _, hs := range history {
-		r.archive.Add(hs.RestoreMessageEvent(&r.mongo))
-	}
+type MessageData struct {
+	User      ChatUser
+	Timestamp int
+	Text      string
+	RoomID    string
+}
+
+func newEvent(typ string, user ChatUser, msg, roomId string) wskeleton.Message {
+	data := MessageData{user, int(time.Now().Unix()), msg, roomId}
+	return wskeleton.Message{typ, data}
 }
