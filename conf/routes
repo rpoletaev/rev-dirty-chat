@@ -21,6 +21,7 @@ POST	/user/update			User.Update
 GET		/chat					Chat.Index
 #POST 	/chat  					Chat.Create
 WS		/chat/:id/ws			Chat.RoomSocket
+WS      /ws                     Chat.Subscribe
 GET		/chat/:id 				Chat.Room
 POST    /chat/private          Chat.GetPrivateRoom
 

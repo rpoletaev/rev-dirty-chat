@@ -3,12 +3,14 @@ package chatService
 import (
 	"fmt"
 
+	"github.com/gorilla/websocket"
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
 	"github.com/rpoletaev/rev-dirty-chat/app/services/userService"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/helper"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
+	"github.com/rpoletaev/wskeleton"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -21,9 +23,6 @@ type ChatUser struct {
 	OriginalID string
 	Name       string
 	Avatar     string
-	Status     string
-	Sex        string
-	Position   string
 	Url        string
 }
 
@@ -36,30 +35,45 @@ func createChatUser(u *models.User) *ChatUser {
 		u.ID.Hex(),
 		u.VisibleName,
 		u.Avatar,
-		u.Status,
-		u.Sex.Caption,
-		u.Position.Caption,
 		fmt.Sprintf("/user/%s", u.AccountLogin),
 	}
 
+	//_This.userMu.Lock()
 	_This.users[user.OriginalID] = user
+	//_This.userMu.Unlock()
 	return user
 }
 
 type chatCacheManager struct {
-	users       map[string]*ChatUser
-	rooms       map[string]*Room
-	regionRooms map[string]*Room
+	//userMu sync.Mutex
+	users map[string]*ChatUser
+
+	//roomMu sync.Mutex
+	rooms map[string]*room
+
+	//regRoomMu   sync.Mutex
+	regionRooms map[string]*room
+
+	wsPeers      map[string][]*websocket.Conn
+	userChannels map[string][]chan wskeleton.Message
 }
 
 var _This *chatCacheManager
 
 func Startup() {
 	_This = &chatCacheManager{
-		users:       make(map[string]*ChatUser),
-		rooms:       make(map[string]*Room),
-		regionRooms: make(map[string]*Room),
+		users:        make(map[string]*ChatUser),
+		rooms:        make(map[string]*room),
+		regionRooms:  make(map[string]*room),
+		userChannels: make(map[string][]chan wskeleton.Message),
 	}
+}
+
+func GetUserSubscribe(userId string) chan wskeleton.Message {
+	println("create new channel")
+	channel := make(chan wskeleton.Message)
+	_This.userChannels[userId] = append(_This.userChannels[userId], channel)
+	return channel
 }
 
 func GetChatUser(service *services.Service, id string) (user *ChatUser, err error) {
@@ -81,7 +95,15 @@ func DeleteUserFromCache(id string) {
 	delete(_This.users, id)
 }
 
-func GetRoom(service *services.Service, id string) (room *Room, err error) {
+func GetRoomIfRunning(id string) (*room, error) {
+	if room, ok := _This.rooms[id]; ok {
+		return room, nil
+	}
+
+	return nil, fmt.Errorf("The room is'nt found")
+}
+
+func GetRoom(service *services.Service, id string) (room *room, err error) {
 	var ok bool
 	if room, ok = _This.rooms[id]; ok {
 		return room, nil
@@ -90,50 +112,71 @@ func GetRoom(service *services.Service, id string) (room *Room, err error) {
 	room, err = GetRoomByID(service, id)
 	if err == nil && room != nil {
 		_This.rooms[id] = room
-		go room.Run(service)
+		go room.Run()
 		return room, nil
-	} else {
-		return room, fmt.Errorf("Room not found")
 	}
+	return room, fmt.Errorf("Room not found")
 }
 
-func FindRoomsByUser(service *services.Service, userRooms []string) (rooms []*Room, err error) {
-	defer helper.CatchPanic(&err, service.UserId, "FindRooms")
-
-	err = service.DBAction(COLLECTION,
-		func(collection *mgo.Collection) error {
-			return collection.Find(bson.M{"_id": bson.M{"$in": userRooms}}).All(&rooms)
-		})
-
-	if err != nil {
-		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindRooms")
-		return rooms, err
-	}
-	fmt.Println(rooms)
-	tracelog.COMPLETED(service.UserId, "FindRooms")
-	return rooms, err
-}
-
-func FindRoomByName(service *services.Service, name string) (room *Room, err error) {
-	defer helper.CatchPanic(&err, service.UserId, "FindRoomsByName")
-
-	queryMap := bson.M{"name": name}
-
-	tracelog.TRACE(helper.MAIN_GO_ROUTINE, "FindRoomsByName", "Query : %s", mongo.ToString(queryMap))
-
-	err = service.DBAction(COLLECTION,
-		func(collection *mgo.Collection) error {
-			return collection.Find(queryMap).One(&room)
-		})
-
-	if err != nil {
-		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindRoomsByName")
-		return room, err
+func GetRuningRoom(id string) *room {
+	if room, ok := _This.rooms[id]; ok {
+		return room
 	}
 
-	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
-	return room, err
+	return nil
 }
+
+func GetUserRoomHeaders(service *services.Service, userId string) []models.RoomHeader {
+	user, err := userService.FindUserByID(service, userId)
+	var rooms []models.RoomHeader
+	if err == nil && user != nil {
+		rooms = user.Rooms
+		if user.Region != "574621ad282c61b7d98bf612" { //Default Empty Region
+			region, _ := GetRegionRoom(service, user.Region)
+			rooms = append(rooms, *region.RoomHeader)
+		}
+	}
+
+	return rooms
+}
+
+// func FindRoomsByUser(service *services.Service, userRooms []string) (rooms []*models.RoomHeader, err error) {
+// 	defer helper.CatchPanic(&err, service.UserId, "FindRooms")
+
+// 	err = service.DBAction(COLLECTION,
+// 		func(collection *mgo.Collection) error {
+// 			return collection.Find(bson.M{"_id": bson.M{"$in": userRooms}}).All(&rooms)
+// 		})
+
+// 	if err != nil {
+// 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindRooms")
+// 		return rooms, err
+// 	}
+// 	fmt.Println(rooms)
+// 	tracelog.COMPLETED(service.UserId, "FindRooms")
+// 	return rooms, err
+// }
+
+// func FindRoomByName(service *services.Service, name string) (room *Room, err error) {
+// 	defer helper.CatchPanic(&err, service.UserId, "FindRoomsByName")
+
+// 	queryMap := bson.M{"name": name}
+
+// 	tracelog.TRACE(helper.MAIN_GO_ROUTINE, "FindRoomsByName", "Query : %s", mongo.ToString(queryMap))
+
+// 	err = service.DBAction(COLLECTION,
+// 		func(collection *mgo.Collection) error {
+// 			return collection.Find(queryMap).One(&room)
+// 		})
+
+// 	if err != nil {
+// 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindRoomsByName")
+// 		return room, err
+// 	}
+
+// 	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
+// 	return room, err
+// }
 
 func FindRoomByRegion(service *services.Service, regionId string) (room *models.RoomHeader, err error) {
 	defer helper.CatchPanic(&err, service.UserId, "FindRoomByRegion")
@@ -156,9 +199,8 @@ func FindRoomByRegion(service *services.Service, regionId string) (room *models.
 	return room, nil
 }
 
-func GetRegionRoom(service *services.Service, regionId string) (room *Room, err error) {
+func GetRegionRoom(service *services.Service, regionId string) (room *room, err error) {
 	var ok bool
-
 	if room, ok = _This.regionRooms[regionId]; ok {
 		return room, nil
 	}
@@ -169,16 +211,15 @@ func GetRegionRoom(service *services.Service, regionId string) (room *Room, err 
 		panic(err)
 	}
 
-	room = &Room{
-		RoomHeader: header,
-	}
+	room = CreateRoom(header)
+
 	if err == nil && room != nil {
 		_This.regionRooms[regionId] = room
-		go room.Run(service)
+		go room.Run()
 		return room, nil
-	} else {
-		return nil, fmt.Errorf("Комната не найдена")
 	}
+
+	return nil, fmt.Errorf("Комната не найдена")
 }
 
 // Find RoomHeader, create if not exist
@@ -198,9 +239,9 @@ func GetRoomBetweenUsers(service *services.Service, users []string) (header *mod
 		return nil, err
 	}
 
-	room := &Room{RoomHeader: header}
+	room := CreateRoom(header)
 	_This.rooms[room.ID.String()] = room
-	go room.Run(service)
+	go room.Run()
 
 	tracelog.COMPLETED(service.UserId, "FindRoomsByName")
 	return header, err
@@ -240,9 +281,9 @@ func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomH
 		IsPrivate: true,
 	}
 
-	room := &Room{RoomHeader: header}
+	room := CreateRoom(header)
 	_This.rooms[room.ID.String()] = room
-	go room.Run(service)
+	go room.Run()
 
 	err = InsertRoom(service, header)
 	if err != nil {
@@ -269,7 +310,7 @@ func CreatePrivateRoom(service *services.Service, users []string) (*models.RoomH
 	return header, nil
 }
 
-func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
+func GetRoomByID(service *services.Service, id string) (r *room, err error) {
 	defer helper.CatchPanic(&err, service.UserId, "FindByID")
 
 	tracelog.STARTED(service.UserId, "FindByID")
@@ -283,12 +324,11 @@ func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
 			header := &models.RoomHeader{}
 			query := collection.FindId(bson.ObjectIdHex(id))
 			err = query.One(header)
-
-			room = &Room{RoomHeader: header}
-			if err == nil {
-				room.IsRuning = false
+			if err != nil {
+				panic(err)
 			}
 
+			r = CreateRoom(header)
 			return err
 		})
 
@@ -298,7 +338,7 @@ func GetRoomByID(service *services.Service, id string) (room *Room, err error) {
 	}
 
 	tracelog.COMPLETED(service.UserId, "GetRoomByID")
-	return room, nil
+	return r, nil
 }
 
 func InsertRoom(service *services.Service, room *models.RoomHeader) (err error) {
@@ -329,6 +369,37 @@ func UpdateRoom(service *services.Service, findCondition map[string]interface{},
 
 	if err != nil {
 		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "UpdateRoom")
+		return err
+	}
+
+	return nil
+}
+
+func GetRoomArchive(mongo *services.Service, id bson.ObjectId) (history []StoredMessage, err error) {
+	defer helper.CatchPanic(&err, mongo.UserId, "GetRoomArchive")
+
+	history = []StoredMessage{}
+	err = mongo.DBAction("messages", func(col *mgo.Collection) error {
+		return col.Find(bson.M{"roomId": id}).Sort("-createdAt").Limit(archiveSize).All(&history)
+	})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "GetRoomArchive")
+		return nil, err
+	}
+
+	return history, nil
+}
+
+func InsertChatMessage(mongo *services.Service, message StoredMessage) (err error) {
+	defer helper.CatchPanic(&err, mongo.UserId, "InsertChatMessage")
+
+	err = mongo.DBAction("messages", func(col *mgo.Collection) error {
+		return col.Insert(message)
+	})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "InsertChatMessage")
 		return err
 	}
 
