@@ -12,6 +12,12 @@ import (
 )
 
 const COLLECTION = "users"
+const (
+	homo = "homo"
+	hetero = "hetero"
+	man = "man"
+	wo
+)
 
 func FindUser(service *services.Service, account string) (user *models.User, err error) {
 	defer helper.CatchPanic(&err, service.UserId, "FindUser")
@@ -126,4 +132,27 @@ func UpdateRating(service *services.Service, userId string, value int) (err erro
 	}
 
 	return nil
+}
+
+func GetRegionStatistic(service *services.Service, regionId string) (user *models.User, err error) {
+	defer helper.CatchPanic(&err, service.UserId, "FindUser")
+
+	queryMap := bson.M{"region": account}
+
+	users := &[]models.User{}
+	err = service.DBAction(COLLECTION,
+		func(collection *mgo.Collection) error {
+			return collection.Find(queryMap).All(users)
+		})
+
+	if err != nil {
+		tracelog.COMPLETED_ERROR(err, helper.MAIN_GO_ROUTINE, "FindUser")
+		return nil, err
+	}
+
+	stats := &models.RegionStats{}
+	for _, user := range users{
+		if user.Orientation.Name == "homo"
+	}
+	return user, err
 }

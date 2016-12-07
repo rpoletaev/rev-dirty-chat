@@ -12,7 +12,7 @@ type App struct {
 func (c *App) Index() revel.Result {
 	if !c.Authenticated() {
 		return c.Redirect("/session/new")
-	} else {
-		return c.Render()
 	}
+
+	return c.Render()
 }

@@ -151,3 +151,14 @@ type Region struct {
 	ID   bson.ObjectId `bson:"_id,omitempty"`
 	Name string        `bson:"name"`
 }
+
+type RegionStats struct {
+	Gay      int64
+	Lesbian  int64
+	BiSexual int64
+	Normal   int64
+
+	Top    int64
+	Bottom int64
+	Switch int64
+}

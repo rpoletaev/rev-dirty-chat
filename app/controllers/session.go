@@ -24,13 +24,12 @@ func init() {
 func (c *Session) New() revel.Result {
 	if !c.Authenticated() {
 		return c.Render()
-	} else {
-		if login, ok := c.Session["Login"]; ok {
-			return c.Redirect(fmt.Sprintf("/user/%s/edit", login))
-		}
-
-		return c.Render()
 	}
+
+	if login, ok := c.Session["Login"]; ok {
+		return c.Redirect(fmt.Sprintf("/user/%s/edit", login))
+	}
+	return c.Render()
 }
 
 func (c *Session) Create(password, email string) revel.Result {
@@ -73,6 +72,7 @@ func (c *Session) Create(password, email string) revel.Result {
 	c.Session["Login"] = originalAccount.Login
 	c.Session["CurrentUserID"] = user.ID.Hex()
 	c.Session["VilibleName"] = user.VisibleName
+	c.Session["RegionID"] = user.Region
 
 	if originalAccount.IsAdmin {
 		c.Session["IsAdmin"] = "true"
