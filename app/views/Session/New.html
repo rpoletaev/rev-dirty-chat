@@ -12,12 +12,12 @@
       <form class="col s12" id="LoginForm" method="POST" name="LoginForm" action="/session/create">
         <div class="row">
           <div class="input-field col l4 offset-l4 s12">
-              <input id="password" placeholder="Пароль" name="password" type="password" class="validate">
+            <input id="email" placeholder="email" name="email" type="email" class="validate">
           </div>
         </div>
         <div class="row">
           <div class="input-field col l4 offset-l4 s12">
-            <input id="email" placeholder="email" name="email" type="email" class="validate">
+              <input id="password" placeholder="Пароль" name="password" type="password" class="validate">
           </div>
         </div>
         <input type="hidden" name="csrf_token" value="[{.csrf_token}]" />
