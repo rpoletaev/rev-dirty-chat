@@ -5,6 +5,7 @@ import (
 
 	"github.com/rpoletaev/rev-dirty-chat/app/models"
 	"github.com/rpoletaev/rev-dirty-chat/app/services"
+	"github.com/rpoletaev/rev-dirty-chat/app/services/notifyService"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/mongo"
 	"github.com/rpoletaev/rev-dirty-chat/utilities/tracelog"
 	"github.com/rpoletaev/wskeleton"
@@ -46,6 +47,16 @@ func (r *room) Run() {
 		archive.AddBack(hs.RestoreMessage(&r.mongo))
 	}
 	r.Hub.SetArchive(archive)
+
+	//Increase count of unreaded messages by user
+	r.AddBeforeBroadcast(func(msg *wskeleton.Message) {
+		for _, u := range r.Users {
+			if msg.Data.(MessageData).User.OriginalID != u.ID.Hex() {
+				notifyService.Increase(u.ID.Hex(), r.ID.Hex())
+			}
+		}
+	})
+	//Store message in mongo
 	r.Hub.AddBeforeBroadcast(func(msg *wskeleton.Message) {
 		go func() {
 			cm := msg.Data.(MessageData)
@@ -62,8 +73,11 @@ func (r *room) Run() {
 				println(err.Error())
 			}
 		}()
-
 	})
+	// r.Hub.AddAfterBroadcast(func(msg *wskeleton.Message) {
+	// 	notifyService.
+	// })
+
 	r.Hub.Run()
 }
 
